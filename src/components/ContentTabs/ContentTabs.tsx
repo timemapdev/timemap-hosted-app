@@ -19,14 +19,16 @@ export const ContentTabs = () => {
     setValue(newValue)
   }
 
-  console.log('TAB VALUE', value)
-
   return (
     <Box width="100%" height="100vh" display="flex" flexDirection="column">
-      <Box display="flex" flex={1}>
+      <Box display="flex" flex={1} width="100vw" minWidth="0">
         <Outlet />
       </Box>
-      <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
+      <Box
+        display="flex"
+        flex={0}
+        sx={{ borderTop: 1, borderColor: 'divider' }}
+      >
         <Tabs
           value={value}
           onChange={handleChange}
