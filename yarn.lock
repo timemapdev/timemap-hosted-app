@@ -688,12 +688,45 @@
   resolved "https://registry.yarnpkg.com/@swc/types/-/types-0.1.4.tgz#8d647e111dc97a8e2881bf71c2ee2d011698ff10"
   integrity sha512-z/G02d+59gyyUb7KYhKi9jOhicek6QD2oMaotUyG+lUkybpXoV49dY9bj7Ah5Q+y7knK2jU67UTX9FyfGzaxQg==
 
+"@tanstack/form-core@0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@tanstack/form-core/-/form-core-0.0.12.tgz#f9d65523d32a6cac689f87df711886a7f355a261"
+  integrity sha512-bkrypO6VT9pf43lfFPDLaLeJxUEI1hnlcMZjRbG2FWNq1jrJV1Ib0e6KUsmWDOaBJM4j4gZrsYUTwjMkgfedHQ==
+  dependencies:
+    "@tanstack/store" "0.0.1-beta.89"
+
+"@tanstack/react-form@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-form/-/react-form-0.0.12.tgz#5486a3b9befeb3d292c51353d4e0a53e90629f6e"
+  integrity sha512-Wx4Gr1Xkhsi3OCv4wqZvdwcW6Lb1kyi+k3tb+YCyGtZNgR3RNY8C+RZgAmLQVULt2EjI/qMKLILFNsGq2EthvQ==
+  dependencies:
+    "@tanstack/form-core" "0.0.12"
+    "@tanstack/react-store" "0.0.1-beta.85"
+
+"@tanstack/react-store@0.0.1-beta.85":
+  version "0.0.1-beta.85"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-store/-/react-store-0.0.1-beta.85.tgz#dc3bf3ec30d9b7f539fda551fc07df11b798c7f6"
+  integrity sha512-5APLxQOHgws735Va5ndbS6aa9pIILcximTr5dQeEFRzCNqjLyJ6YHGDuqng9zLMLzCyNILmdEtpNW0tp5l/tNw==
+  dependencies:
+    "@tanstack/store" "0.0.1-beta.85"
+    use-sync-external-store "^1.2.0"
+
 "@tanstack/react-virtual@^3.0.0-beta.18":
   version "3.0.0-beta.57"
   resolved "https://registry.yarnpkg.com/@tanstack/react-virtual/-/react-virtual-3.0.0-beta.57.tgz#efa0497144f21e8195448cac43082caa20c367f0"
   integrity sha512-f5cVU4m9TAoK5NBOosq2qobN316wwFd9jyCdQq82SzjmV9f8w1cdcqk/JnFoSKzwc7s2HduymsIDSjKNjubNbQ==
   dependencies:
     "@tanstack/virtual-core" "3.0.0-beta.57"
+
+"@tanstack/store@0.0.1-beta.85":
+  version "0.0.1-beta.85"
+  resolved "https://registry.yarnpkg.com/@tanstack/store/-/store-0.0.1-beta.85.tgz#d6f1d2c66787d15e796819b94be08de44be17cbf"
+  integrity sha512-gUn8i4mhS7V5yRTu6NosoKuUBfw4w36JHx0rg2MJ5kAiKukISoTqlzUKKKzmVvVPL6H1xwaDGEf6bmLzLlgZEQ==
+
+"@tanstack/store@0.0.1-beta.89":
+  version "0.0.1-beta.89"
+  resolved "https://registry.yarnpkg.com/@tanstack/store/-/store-0.0.1-beta.89.tgz#4ba77e66a34d7c6dbf33401daffcb505c3022823"
+  integrity sha512-YW2aAhsXI4QYLXRnxZzB7MgEah91itQcWAjN3GYg1HKHxPv/11T5bL1CUCSxFLTI0f+45uNRjsmof6eqsN3ECA==
 
 "@tanstack/virtual-core@3.0.0-beta.57":
   version "3.0.0-beta.57"
@@ -4115,6 +4148,11 @@ use-isomorphic-layout-effect@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.2.tgz#497cefb13d863d687b08477d9e5a164ad8c1a6fb"
   integrity sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==
+
+use-sync-external-store@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
+  integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
 
 utf-8-validate@^5.0.2:
   version "5.0.10"

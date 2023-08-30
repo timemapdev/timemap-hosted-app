@@ -3,7 +3,6 @@ import { Associations } from 'components/Associations'
 import { ContentTabs } from 'components/ContentTabs/ContentTabs'
 import { Events } from 'components/Events'
 import { Login } from 'components/Login'
-import { Sites } from 'components/Sites'
 import { Sources } from 'components/Sources'
 import { createBrowserRouter } from 'react-router-dom'
 
@@ -27,10 +26,6 @@ export const routes = [
           {
             path: 'events',
             element: <Events index={1} />
-          },
-          {
-            path: 'sites',
-            element: <Sites index={2} />
           },
           {
             path: 'associations',

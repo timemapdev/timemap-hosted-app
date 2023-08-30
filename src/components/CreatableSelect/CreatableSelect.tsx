@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { CellProps, Column } from 'react-datasheet-grid'
-import Select, { GroupBase, SelectInstance } from 'react-select'
+import { GroupBase, SelectInstance } from 'react-select'
+import Creatable from 'react-select/creatable'
 
 type Choice = {
   label: string
@@ -10,9 +11,10 @@ type Choice = {
 type SelectOptions = {
   choices: Choice[]
   disabled?: boolean
+  onCreateOption: (value: string) => void
 }
 
-export const CustomSelect = ({
+export const CreatableSelect = ({
   active,
   rowData,
   setRowData,
@@ -31,7 +33,7 @@ export const CustomSelect = ({
   }, [focus])
 
   return (
-    <Select
+    <Creatable
       ref={ref}
       styles={{
         container: provided => ({
@@ -74,14 +76,15 @@ export const CustomSelect = ({
       }}
       onMenuClose={() => stopEditing({ nextRow: false })}
       options={columnData.choices}
+      onCreateOption={columnData.onCreateOption}
     />
   )
 }
 
-export const selectColumn = (
+export const creatableSelectColumn = (
   options: SelectOptions
 ): Column<string | null, SelectOptions> => ({
-  component: CustomSelect,
+  component: CreatableSelect,
   columnData: options,
   disableKeys: true,
   keepFocus: true,

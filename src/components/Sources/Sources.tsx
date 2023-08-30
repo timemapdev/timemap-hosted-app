@@ -4,6 +4,10 @@ import { client } from 'lib/client'
 import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
 import { Database } from 'openapi/database.generated'
 import { selectColumn } from 'components/CustomSelect'
+import { SiteSidebar } from 'components/SiteSidebar'
+import { creatableSelectColumn } from 'components/CreatableSelect'
+import { oblasts } from 'lib/oblasts'
+import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
 
 type NonNullable<T> = T extends null ? never : T
 
@@ -18,7 +22,10 @@ type SourcesProps = {
 type SourceType = Denull<Database['public']['Tables']['source']['Row']>
 
 export const Sources: FC<SourcesProps> = ({ index }) => {
+  const [siteSidebarOpen, setSiteSidebarOpen] = useState(false)
   const [sources, setSources] = useState<SourceType[]>([])
+  const [selectedCell, setSelectedCell] = useState<CellWithId | null>(null)
+  const [townSnippet, setTownSnippet] = useState('')
 
   useEffect(() => {
     const doStuff = async () => {
@@ -59,18 +66,28 @@ export const Sources: FC<SourcesProps> = ({ index }) => {
       ...keyColumn(
         'oblastKey',
         selectColumn({
-          choices: [
-            { value: 'chocolate', label: 'Chocolate' },
-            { value: 'strawberry', label: 'Strawberry' },
-            { value: 'vanilla', label: 'Vanilla' }
-          ]
+          choices: oblasts
         })
       ),
       title: 'Oblast key',
       minWidth: 200
     },
     {
-      ...keyColumn('townKey', textColumn),
+      ...keyColumn(
+        'townKey',
+        creatableSelectColumn({
+          choices: [
+            { value: 'chocolate', label: 'Chocolate' },
+            { value: 'strawberry', label: 'Strawberry' },
+            { value: 'vanilla', label: 'Vanilla' }
+          ],
+          onCreateOption: value => {
+            console.log('VAlue', value)
+            setSiteSidebarOpen(true)
+            setTownSnippet(value)
+          }
+        })
+      ),
       title: 'Town key',
       minWidth: 200
     },
@@ -118,14 +135,23 @@ export const Sources: FC<SourcesProps> = ({ index }) => {
       aria-labelledby={`simple-tab-${index}`}
       width="100%"
     >
-      <DataSheetGrid
+      <DataSheetGrid<SourceType>
         value={sources}
-        columns={columns}
+        columns={columns as Partial<Column<SourceType, any, any>>[]}
         height={500}
+        onChange={setSources}
         onActiveCellChange={({ cell }) => {
-          console.log(cell)
+          setSelectedCell(cell)
         }}
         // onChange={setSources}
+      />
+      <SiteSidebar
+        open={siteSidebarOpen}
+        onClose={() => setSiteSidebarOpen(false)}
+        initialData={{
+          oblast: selectedCell ? sources[selectedCell.row].oblastKey : '',
+          town: townSnippet
+        }}
       />
     </Box>
   )
