@@ -10,7 +10,8 @@ export default defineConfig({
     alias: {
       components: '/src/components',
       lib: '/src/lib',
-      openapi: '/src/openapi'
+      openapi: '/src/openapi',
+      routes: '/src/routes'
     }
   },
   plugins: [react()],

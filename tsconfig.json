@@ -20,12 +20,13 @@
     "paths": {
       "components/*": ["./components/*"],
       "lib/*": ["./lib/*"],
-      "openapi/*": ["./openapi/*"]
+      "openapi/*": ["./openapi/*"],
+      "routes/*": ["./routes/*"],
     },
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "declarationMap": true,
     "declaration": true
   },
-  "include": ["src"],
+  "include": ["src", ".eslintrc.cjs"],
   "exclude": ["node_modules"]
 }
