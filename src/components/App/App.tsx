@@ -1,11 +1,19 @@
-import Box from '@mui/material/Box'
+import Box from '@mui/joy/Box'
+import CssBaseline from '@mui/joy/CssBaseline'
+import { CssVarsProvider } from '@mui/joy/styles'
 import { FC } from 'react'
 import { Outlet } from 'react-router-dom'
 
 export const App: FC = () => (
-  <Box display="flex">
-    <style>
-      {`
+  <CssVarsProvider>
+    <CssBaseline />
+
+    <Box display="flex">
+      <style>
+        {`
+        body {
+          margin: 0;
+        }
         .dsg-container {
           height: 100% !important;
           display: flex;
@@ -24,7 +32,8 @@ export const App: FC = () => (
           line-height: 16px;
         }
       `}
-    </style>
-    <Outlet />
-  </Box>
+      </style>
+      <Outlet />
+    </Box>
+  </CssVarsProvider>
 )

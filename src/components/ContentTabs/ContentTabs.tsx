@@ -1,9 +1,9 @@
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
-import Box from '@mui/material/Box'
-import { SyntheticEvent, useState } from 'react'
+import Tabs from '@mui/joy/Tabs'
+import Tab from '@mui/joy/Tab'
+import Box from '@mui/joy/Box'
 import { Outlet, Link as RouterLink } from 'react-router-dom'
 import 'react-datasheet-grid/dist/style.css'
+import TabList from '@mui/joy/TabList'
 
 function a11yProps(index: number) {
   return {
@@ -12,54 +12,28 @@ function a11yProps(index: number) {
   }
 }
 
-export const ContentTabs = () => {
-  const [value, setValue] = useState(0)
-
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
-    setValue(newValue)
-  }
-
-  return (
-    <Box width="100%" height="100vh" display="flex" flexDirection="column">
-      <Box display="flex" flex={1} width="100vw" minWidth="0">
-        <Outlet />
-      </Box>
-      <Box
-        display="flex"
-        flex={0}
-        sx={{ borderTop: 1, borderColor: 'divider' }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="basic tabs example"
-        >
-          <Tab
-            label="Sources"
-            component={RouterLink}
-            to="sources"
-            {...a11yProps(0)}
-          />
-          <Tab
-            label="Events"
-            component={RouterLink}
-            to="events"
-            {...a11yProps(1)}
-          />
-          <Tab
-            label="Sites"
-            component={RouterLink}
-            to="sites"
-            {...a11yProps(2)}
-          />
-          <Tab
-            component={RouterLink}
-            to="associations"
-            label="Associations"
-            {...a11yProps(3)}
-          />
-        </Tabs>
-      </Box>
+export const ContentTabs = () => (
+  <Box width="100%" height="100vh" display="flex" flexDirection="column">
+    <Box display="flex" flex={1} width="100vw" minWidth="0">
+      <Outlet />
     </Box>
-  )
-}
+    <Box display="flex" flex={0} sx={{ borderTop: 1, borderColor: 'divider' }}>
+      <Tabs aria-label="basic tabs example">
+        <TabList>
+          <Tab component={RouterLink} to="sources" {...a11yProps(0)}>
+            Sources
+          </Tab>
+          <Tab component={RouterLink} to="events" {...a11yProps(1)}>
+            Events
+          </Tab>
+          <Tab component={RouterLink} to="sites" {...a11yProps(2)}>
+            Sites
+          </Tab>
+          <Tab component={RouterLink} to="associations" {...a11yProps(3)}>
+            Associations
+          </Tab>
+        </TabList>
+      </Tabs>
+    </Box>
+  </Box>
+)

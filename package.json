@@ -9,14 +9,15 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "openapi": "npx openapi-typescript@5.4.0 ${VITE_SUPABASE_URL}/rest/v1/?apikey=${VITE_SUPABASE_API_KEY} --output src/openapi/supabase.generated.ts",
     "database-types": "supabase gen types typescript --project-id ${VITE_SUPABASE_ID} > src/openapi/database.generated.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "types": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.7",
-    "@mui/material": "^5.14.7",
+    "@mui/joy": "^5.0.0-beta.4",
     "@supabase/auth-ui-react": "^0.4.2",
     "@supabase/auth-ui-shared": "^0.1.6",
     "@supabase/supabase-js": "^2.33.1",

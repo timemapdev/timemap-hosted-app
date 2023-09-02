@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
+import Box from '@mui/joy/Box'
+import Typography from '@mui/joy/Typography'
 import { FC } from 'react'
 
 type AssociationsProps = {

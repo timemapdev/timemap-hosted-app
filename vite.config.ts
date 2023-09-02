@@ -11,7 +11,8 @@ export default defineConfig({
       components: '/src/components',
       lib: '/src/lib',
       openapi: '/src/openapi',
-      routes: '/src/routes'
+      routes: '/src/routes',
+      models: '/src/models'
     }
   },
   plugins: [react()],

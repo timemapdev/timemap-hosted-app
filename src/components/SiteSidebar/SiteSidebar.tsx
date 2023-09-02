@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box'
-import Drawer from '@mui/material/Drawer'
+import Box from '@mui/joy/Box'
+import { Drawer } from 'components/Drawer'
 import { SiteSidebarForm } from 'components/SiteSidebar/SiteSidebarForm'
 import { FC } from 'react'
 
@@ -18,11 +18,9 @@ export const SiteSidebar: FC<SiteSidebarProps> = ({
   initialData,
   ...props
 }) => {
-  console.log('Initial data', initialData)
-
   return (
-    <Drawer anchor="right" {...props}>
-      <Box display="flex" flexDirection="column" width="400px" padding="8px">
+    <Drawer position="right" title="Add new site" {...props}>
+      <Box display="flex" flexDirection="column">
         <SiteSidebarForm {...initialData} />
       </Box>
     </Drawer>

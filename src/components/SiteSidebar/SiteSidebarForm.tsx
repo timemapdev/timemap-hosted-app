@@ -1,11 +1,13 @@
 /* eslint-disable react/no-children-prop */
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import Box from '@mui/joy/Box'
+import Button from '@mui/joy/Button'
 import { useForm } from '@tanstack/react-form'
 import { OblastSelect } from 'components/OblastSelect'
 import { FC, useMemo } from 'react'
+import FormControl from '@mui/joy/FormControl'
+import FormLabel from '@mui/joy/FormLabel'
+import FormHelperText from '@mui/joy/FormHelperText'
+import Input from '@mui/joy/Input'
 
 type SiteSidebarFormProps = {
   oblast: string
@@ -44,9 +46,6 @@ export const SiteSidebarForm: FC<SiteSidebarFormProps> = ({
         flexDirection="column"
         gap="24px"
       >
-        <Typography variant="h6" component="h2">
-          Add new site
-        </Typography>
         <Box>
           {/* A type-safe and pre-bound field component*/}
           <Field
@@ -70,19 +69,17 @@ export const SiteSidebarForm: FC<SiteSidebarFormProps> = ({
               return !value ? 'Please enter town name' : undefined
             }}
           >
-            {field => {
-              const { error } = field.getMeta()
-              return (
-                <TextField
+            {field => (
+              <FormControl required size="sm" color="primary">
+                <FormLabel>Town</FormLabel>
+                <Input
+                  fullWidth
+                  variant="outlined"
                   {...field.getInputProps()}
-                  size="small"
-                  error={Boolean(error)}
-                  helperText={error}
-                  label="Town"
-                  sx={{ width: '100%' }}
                 />
-              )
-            }}
+                {<FormHelperText>{field.getMeta().error}</FormHelperText>}
+              </FormControl>
+            )}
           </Field>
         </Box>
         <Box>
@@ -94,25 +91,23 @@ export const SiteSidebarForm: FC<SiteSidebarFormProps> = ({
                 : undefined
             }}
           >
-            {field => {
-              const { error } = field.getMeta()
-              return (
-                <TextField
+            {field => (
+              <FormControl required size="sm" color="primary">
+                <FormLabel>Coordinates</FormLabel>
+                <Input
+                  fullWidth
+                  variant="outlined"
                   {...field.getInputProps()}
-                  size="small"
-                  error={Boolean(error)}
-                  helperText={error}
-                  label="Coordinates"
-                  sx={{ width: '100%' }}
                 />
-              )
-            }}
+                {<FormHelperText>{field.getMeta().error}</FormHelperText>}
+              </FormControl>
+            )}
           </Field>
         </Box>
         <Subscribe
           selector={state => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
-            <Button type="submit" disabled={!canSubmit} variant="contained">
+            <Button type="submit" disabled={!canSubmit}>
               {isSubmitting ? '...' : 'Submit'}
             </Button>
           )}

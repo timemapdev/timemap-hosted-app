@@ -3,7 +3,7 @@ import { Associations } from 'components/Associations'
 import { ContentTabs } from 'components/ContentTabs/ContentTabs'
 import { Events } from 'components/Events'
 import { Login } from 'components/Login'
-import { Sources } from 'components/Sources'
+import { PasteSources } from 'components/PasteSources'
 import { createBrowserRouter } from 'react-router-dom'
 
 export const routes = [
@@ -21,7 +21,7 @@ export const routes = [
         children: [
           {
             path: 'sources',
-            element: <Sources index={0} />
+            element: <PasteSources tabIndex={0} />
           },
           {
             path: 'events',
