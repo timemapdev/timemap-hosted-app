@@ -1,13 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import Box from '@mui/joy/Box'
-import { FC, useEffect, useState } from 'react'
-import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
+import { FC, useEffect, useRef, useState } from 'react'
+import {
+  DataSheetGrid,
+  textColumn,
+  keyColumn,
+  DataSheetGridRef
+} from 'react-datasheet-grid'
 import { Database } from 'openapi/database.generated'
 import { ValidationSidebar } from 'components/ValidationSidebar'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
-import Input from '@mui/joy/Input'
 import { sourceModel } from 'models'
+import Input from '@mui/joy/Input'
+import Link from '@mui/joy/Link'
+import Chip from '@mui/joy/Chip'
+import { Button } from '@mui/joy'
 
 type NonNullable<T> = T extends null ? never : T
 
@@ -34,13 +40,10 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   const [validationMessages, setValidationMessages] = useState<
     Record<string, ValidationMessages<SourceTypeRaw>>
   >({})
+  const ref = useRef<DataSheetGridRef>(null)
 
   useEffect(() => {
-    console.log('Validation messages', validationMessages)
-  }, [validationMessages])
-
-  useEffect(() => {
-    sources.forEach((source, index) => {
+    sources.forEach((source, rowNum) => {
       if (!source.timestamp) {
         return
       }
@@ -52,13 +55,23 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
             return
           }
 
-          setValidationMessages(prev => ({
-            ...prev,
-            [index]: result.error.issues.map(({ path: [path], message }) => ({
-              ...prev[index],
-              [path]: [message]
-            }))
-          }))
+          setValidationMessages(prev => {
+            return {
+              ...prev,
+              [rowNum]: result.error.issues.reduce(
+                (acc, { path: [path], message }) => {
+                  console.log('Path: ', path)
+                  console.log('Error: ', prev[rowNum])
+                  return {
+                    ...acc,
+                    ...prev[rowNum],
+                    [path]: [message]
+                  }
+                },
+                {}
+              )
+            }
+          })
         })
         .catch(e => {
           console.log(e)
@@ -134,6 +147,8 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
     }
   ]
 
+  const errorCount = Object.keys(validationMessages).length
+  console.log('Validation messages: ', validationMessages)
   return (
     <Box
       role="tabpanel"
@@ -141,19 +156,58 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
       aria-labelledby={`simple-tab-${tabIndex}`}
       width="100%"
     >
-      <Box>
-        <Input
-          value={
-            selectedCell && selectedCell.colId
-              ? sources[selectedCell?.row][
-                  selectedCell.colId as keyof SourceType
-                ] ?? ''
-              : ''
-          }
-        />
+      <Box display="flex" padding="8px">
+        <Box flex={1}>
+          <Input
+            disabled={true}
+            // onFocus={() => {
+            //   if (selectedCell && ref.current) {
+            //     ref.current?.setSelection({
+            //       min: selectedCell,
+            //       max: selectedCell
+            //     })
+            //   }
+            // }}
+            value={
+              selectedCell && selectedCell.colId
+                ? sources[selectedCell?.row][
+                    selectedCell.colId as keyof SourceType
+                  ] ?? ''
+                : ''
+            }
+          />
+        </Box>
+        <Box
+          width="150px"
+          display="flex"
+          alignItems="center"
+          justifyContent="flex-end"
+          pr="8px"
+        >
+          <Link
+            component={Button}
+            onClick={() => setValidationSidebarOpen(value => !value)}
+            underline="none"
+            variant="plain"
+            size="sm"
+            endDecorator={
+              <Chip
+                color={errorCount ? 'danger' : 'success'}
+                variant="soft"
+                size="sm"
+              >
+                {errorCount}
+              </Chip>
+            }
+            sx={{ '--Link-gap': '0.5rem', pl: 1, py: 0.5, borderRadius: 'md' }}
+          >
+            Errors
+          </Link>
+        </Box>
       </Box>
       <Box height="8px" />
       <DataSheetGrid<SourceType>
+        ref={ref}
         value={sources}
         columns={columns as Partial<Column<SourceType, any, any>>[]}
         height={500}
@@ -165,6 +219,8 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
       <ValidationSidebar
         open={validationSidebarOpen}
         onClose={() => setValidationSidebarOpen(false)}
+        validationMessages={validationMessages}
+        gridRef={ref}
       />
     </Box>
   )

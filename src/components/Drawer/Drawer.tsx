@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react'
-import Modal, { ModalProps, modalClasses } from '@mui/joy/Modal'
+import Modal, { ModalProps } from '@mui/joy/Modal'
 import Box from '@mui/joy/Box'
 import Divider from '@mui/joy/Divider'
 import ModalClose from '@mui/joy/ModalClose'
@@ -25,17 +25,11 @@ export const Drawer: FC<DrawerProps> = ({
     <Modal
       keepMounted
       hideBackdrop
-      sx={[
-        {
-          transitionProperty: 'visibility',
-          transitionDelay: props.open ? '0s' : '300ms',
-          [`& .${modalClasses.backdrop}`]: {
-            opacity: props.open ? 1 : 0,
-            transition: 'opacity 0.3s ease'
-          }
-        },
-        ...(Array.isArray(sx) ? sx : [sx])
-      ]}
+      disableEnforceFocus
+      disablePortal
+      sx={{
+        left: 'auto'
+      }}
       {...props}
     >
       <Sheet
