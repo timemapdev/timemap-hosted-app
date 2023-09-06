@@ -1,11 +1,6 @@
 import Box from '@mui/joy/Box'
-import { FC, useEffect, useRef, useState } from 'react'
-import {
-  DataSheetGrid,
-  textColumn,
-  keyColumn,
-  DataSheetGridRef
-} from 'react-datasheet-grid'
+import { FC, Profiler, useEffect, useRef, useState, useMemo } from 'react'
+import { textColumn, keyColumn, DataSheetGridRef } from 'react-datasheet-grid'
 import { Database } from 'openapi/database.generated'
 import { ValidationSidebar } from 'components/ValidationSidebar'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
@@ -14,6 +9,7 @@ import Input from '@mui/joy/Input'
 import Link from '@mui/joy/Link'
 import Chip from '@mui/joy/Chip'
 import { Button } from '@mui/joy'
+import { PasteSourcesGrid } from 'components/PasteSources/PasteSourcesGrid'
 
 type NonNullable<T> = T extends null ? never : T
 
@@ -79,73 +75,76 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
     })
   }, [sources])
 
-  const columns = [
-    {
-      ...keyColumn('timestamp', textColumn),
-      title: 'Upload time',
-      minWidth: 150
-    },
-    {
-      ...keyColumn('sourceUrl', textColumn),
-      title: 'Source video hyperlink',
-      minWidth: 500
-    },
-    {
-      ...keyColumn('dateOfPost', textColumn),
-      title: 'Date',
-      minWidth: 60
-    },
-    {
-      ...keyColumn('yearOfPost', textColumn),
-      title: 'Year',
-      minWidth: 60
-    },
-    {
-      ...keyColumn('oblast', textColumn),
-      title: 'Oblast',
-      minWidth: 140
-    },
-    {
-      ...keyColumn('town', textColumn),
-      title: 'Town/village',
-      minWidth: 140
-    },
-    {
-      ...keyColumn('manualLatLng', textColumn),
-      title: 'Coordinates',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('googleDriveLinks', textColumn),
-      title: 'Upload file or files',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('fileNames', textColumn),
-      title: 'Copy here name of the uploaded file or files',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('archiveLink', textColumn),
-      title: 'Source archive link',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('comment', textColumn),
-      title: 'Comment',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('typeOfIncident', textColumn),
-      title: 'Type of incident',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('meansOfAttack', textColumn),
-      title: 'Means of attack',
-      minWidth: 200
-    }
-  ]
+  const columns = useMemo(
+    () => [
+      {
+        ...keyColumn('timestamp', textColumn),
+        title: 'Upload time',
+        minWidth: 150
+      },
+      {
+        ...keyColumn('sourceUrl', textColumn),
+        title: 'Source video hyperlink',
+        minWidth: 500
+      },
+      {
+        ...keyColumn('dateOfPost', textColumn),
+        title: 'Date',
+        minWidth: 60
+      },
+      {
+        ...keyColumn('yearOfPost', textColumn),
+        title: 'Year',
+        minWidth: 60
+      },
+      {
+        ...keyColumn('oblast', textColumn),
+        title: 'Oblast',
+        minWidth: 140
+      },
+      {
+        ...keyColumn('town', textColumn),
+        title: 'Town/village',
+        minWidth: 140
+      },
+      {
+        ...keyColumn('manualLatLng', textColumn),
+        title: 'Coordinates',
+        minWidth: 200
+      },
+      {
+        ...keyColumn('googleDriveLinks', textColumn),
+        title: 'Upload file or files',
+        minWidth: 200
+      },
+      {
+        ...keyColumn('fileNames', textColumn),
+        title: 'Copy here name of the uploaded file or files',
+        minWidth: 200
+      },
+      {
+        ...keyColumn('archiveLink', textColumn),
+        title: 'Source archive link',
+        minWidth: 200
+      },
+      {
+        ...keyColumn('comment', textColumn),
+        title: 'Comment',
+        minWidth: 200
+      },
+      {
+        ...keyColumn('typeOfIncident', textColumn),
+        title: 'Type of incident',
+        minWidth: 200
+      },
+      {
+        ...keyColumn('meansOfAttack', textColumn),
+        title: 'Means of attack',
+        minWidth: 200
+      }
+    ],
+    []
+  )
 
   const errorCount = Object.keys(validationMessages).length
   console.log('Validation messages: ', validationMessages)
@@ -206,19 +205,37 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         </Box>
       </Box>
       <Box height="8px" />
-      <DataSheetGrid<SourceType>
-        ref={ref}
-        value={sources}
-        columns={columns as Partial<Column<SourceType, any, any>>[]}
-        height={500}
-        onChange={setSources}
-        onActiveCellChange={({ cell }) => {
-          setSelectedCell(cell)
+      <Profiler
+        id="PasteSources"
+        onRender={(
+          id,
+          phase,
+          actualDuration,
+          baseDuration,
+          startTime,
+          commitTime
+        ) => {
+          console.log({
+            id,
+            phase,
+            actualDuration,
+            baseDuration,
+            startTime,
+            commitTime
+          })
         }}
-      />
+      >
+        <PasteSourcesGrid
+          gridRef={ref}
+          sources={sources}
+          columns={columns as Partial<Column<SourceType, any, any>>[]}
+          onChange={setSources}
+          setSelectedCell={setSelectedCell}
+        />
+      </Profiler>
       <ValidationSidebar
         open={validationSidebarOpen}
-        onClose={() => setValidationSidebarOpen(false)}
+        setValidationSidebarOpen={setValidationSidebarOpen}
         validationMessages={validationMessages}
         gridRef={ref}
       />

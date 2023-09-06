@@ -21,12 +21,14 @@ export const Drawer: FC<DrawerProps> = ({
   sx,
   ...props
 }) => {
+  console.log('Drawer')
   return (
     <Modal
       keepMounted
       hideBackdrop
       disableEnforceFocus
       disablePortal
+      disableScrollLock
       sx={{
         left: 'auto'
       }}
