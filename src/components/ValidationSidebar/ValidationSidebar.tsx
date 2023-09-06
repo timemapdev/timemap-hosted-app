@@ -21,7 +21,6 @@ type ValidationSidebarProps = {
 
 export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
   ({ validationMessages, gridRef, open, setValidationSidebarOpen }) => {
-    console.log('Sidebar')
     return (
       <Profiler
         id="Drawer"

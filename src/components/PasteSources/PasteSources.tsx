@@ -10,6 +10,7 @@ import Link from '@mui/joy/Link'
 import Chip from '@mui/joy/Chip'
 import { Button } from '@mui/joy'
 import { PasteSourcesGrid } from 'components/PasteSources/PasteSourcesGrid'
+import { createValidatedColumn } from 'components/ValidatedCell'
 
 type NonNullable<T> = T extends null ? never : T
 
@@ -39,6 +40,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   const ref = useRef<DataSheetGridRef>(null)
 
   useEffect(() => {
+    console.log('Validating all')
     sources.forEach((source, rowNum) => {
       if (!source.timestamp) {
         return
@@ -56,8 +58,6 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
               ...prev,
               [rowNum]: result.error.issues.reduce(
                 (acc, { path: [path], message }) => {
-                  console.log('Path: ', path)
-                  console.log('Error: ', prev[rowNum])
                   return {
                     ...acc,
                     ...prev[rowNum],
@@ -88,9 +88,24 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         minWidth: 500
       },
       {
-        ...keyColumn('dateOfPost', textColumn),
+        ...keyColumn(
+          'dateOfPost',
+          createValidatedColumn({
+            validate: (value: string) => {
+              if (typeof value !== 'string') {
+                return ['Please enter date']
+              }
+
+              if (!/^\d{1,2}.\d{1,2}$/.test(value)) {
+                return ['Please enter date in format DD.MM']
+              }
+
+              return []
+            }
+          })
+        ),
         title: 'Date',
-        minWidth: 60
+        minWidth: 80
       },
       {
         ...keyColumn('yearOfPost', textColumn),
