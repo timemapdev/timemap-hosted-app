@@ -10,17 +10,27 @@ import {
 } from 'react-datasheet-grid/dist/types'
 import Error from '@mui/icons-material/Error'
 import { IconButton, Tooltip } from '@mui/joy'
+import { useValidation } from 'components/ValidationContext'
 
 export const ValidatedCell = memo<
   CellProps<string | null, TextColumnData<string | null>>
 >(props => {
   const { validate } = props.columnData
-  const [validationResult, setValidationResult] = useState<string[]>([])
+  const { state, dispatch } = useValidation()
 
-  useEffect(
-    () => setValidationResult(validate(props.rowData)),
-    [props.rowData, validate]
-  )
+  useEffect(() => {
+    const result = validate(props.rowData)
+    result.length
+      ? dispatch({
+          type: 'setValidationResult',
+          payload: {
+            row: props.row,
+            column: props.column, // FIX this to use correct column name
+            messages: result
+          }
+        })
+      : dispatch({ type: 'clearValidationResult' })
+  }, [props.rowData, validate])
 
   return (
     <>

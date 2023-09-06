@@ -2,25 +2,17 @@ import Box from '@mui/joy/Box'
 import { FC, useEffect, useState } from 'react'
 import { client } from 'lib/client'
 import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
-import { Database } from 'openapi/database.generated'
 import { selectColumn } from 'components/CustomSelect'
 import { SiteSidebar } from 'components/SiteSidebar'
 import { creatableSelectColumn } from 'components/CreatableSelect'
 import { oblasts } from 'lib/oblasts'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
 import Input from '@mui/joy/Input'
-
-type NonNullable<T> = T extends null ? never : T
-
-type Denull<T> = {
-  [K in keyof T]: NonNullable<T[K]>
-}
+import { SourceType } from 'types'
 
 type SourcesProps = {
   index: number
 }
-
-type SourceType = Denull<Database['public']['Tables']['source']['Row']>
 
 export const Sources: FC<SourcesProps> = ({ index }) => {
   const [siteSidebarOpen, setSiteSidebarOpen] = useState(false)
