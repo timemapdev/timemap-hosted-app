@@ -42,7 +42,7 @@ function validationReducer(state: State, action: Action) {
     case 'clearValidationResult': {
       const { row, column } = action.payload
 
-      const invalidColumns = Object.keys(state[row])
+      const invalidColumns = Object.keys(state[row] ?? {})
 
       if (invalidColumns.length === 1 && invalidColumns[0] === column) {
         const { [row]: _, ...newState } = state

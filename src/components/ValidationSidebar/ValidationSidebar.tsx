@@ -27,39 +27,44 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
             {Object.entries(validationMessages).map(
               ([rowNum, rowValidation]) => {
                 return Object.entries(rowValidation).map(
-                  ([property, messages]) => (
-                    <ListItem
-                      key={`${rowNum}${property}`}
-                      onClick={() => {
-                        gridRef.current?.setActiveCell({
-                          row: Number(rowNum),
-                          col: property
-                        })
-                      }}
-                      sx={{
-                        cursor: 'pointer',
-                        ':hover': {
-                          textDecoration: 'underline'
-                        }
-                      }}
-                    >
-                      <Box display="flex" flexDirection="column">
-                        <Typography
-                          component="span"
-                          fontSize="14px"
-                        >{`${messages.reduce(
-                          (acc, message) => `${acc}, ${message}`
-                        )}`}</Typography>
-                        <Typography
-                          component="span"
-                          fontSize="12px"
-                          sx={theme => ({
-                            color: `${theme.vars.palette.neutral[400]}`
-                          })}
-                        >{`Row: ${rowNum}, Column: ${property}`}</Typography>
-                      </Box>
-                    </ListItem>
-                  )
+                  ([property, messages]) => {
+                    if (!messages) {
+                      console.log('Missing messages', { rowNum, property })
+                    }
+                    return (
+                      <ListItem
+                        key={`${rowNum}${property}`}
+                        onClick={() => {
+                          gridRef.current?.setActiveCell({
+                            row: Number(rowNum),
+                            col: property
+                          })
+                        }}
+                        sx={{
+                          cursor: 'pointer',
+                          ':hover': {
+                            textDecoration: 'underline'
+                          }
+                        }}
+                      >
+                        <Box display="flex" flexDirection="column">
+                          <Typography
+                            component="span"
+                            fontSize="14px"
+                          >{`${messages.reduce(
+                            (acc, message) => `${acc}, ${message}`
+                          )}`}</Typography>
+                          <Typography
+                            component="span"
+                            fontSize="12px"
+                            sx={theme => ({
+                              color: `${theme.vars.palette.neutral[400]}`
+                            })}
+                          >{`Row: ${rowNum}, Column: ${property}`}</Typography>
+                        </Box>
+                      </ListItem>
+                    )
+                  }
                 )
               }
             )}

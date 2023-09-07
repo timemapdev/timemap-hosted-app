@@ -2,13 +2,12 @@
   "name": "timemap-hosted-app",
   "private": true,
   "version": "0.0.1",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "openapi": "npx openapi-typescript@5.4.0 ${VITE_SUPABASE_URL}/rest/v1/?apikey=${VITE_SUPABASE_API_KEY} --output src/openapi/supabase.generated.ts",
-    "database-types": "supabase gen types typescript --project-id ${VITE_SUPABASE_ID} > src/openapi/database.generated.ts",
+    "database-types": "npx supabase gen types typescript --project-id \"${VITE_SUPABASE_ID}\" --schema public > src/openapi/supabase.ts",
     "preview": "vite preview",
     "types": "tsc --noEmit --skipLibCheck"
   },
@@ -52,7 +51,7 @@
     "eslint-plugin-vitest": "^0.2.8",
     "openapi-typescript": "^6.5.3",
     "prettier": "^3.0.3",
-    "supabase": "^1.88.0",
+    "supabase": "^1.93.0",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vitest": "0.34.2",

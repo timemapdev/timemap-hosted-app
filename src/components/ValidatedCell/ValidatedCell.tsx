@@ -2,7 +2,7 @@ import {
   TextColumnData,
   TextComponent
 } from 'components/TextComponent/TextComponent'
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect } from 'react'
 import {
   CellComponent,
   CellProps,
@@ -11,11 +11,12 @@ import {
 import Error from '@mui/icons-material/Error'
 import { IconButton, Tooltip } from '@mui/joy'
 import { useValidation } from 'components/ValidationContext'
+import { SourceTypeRaw } from 'types'
 
 export const ValidatedCell = memo<
   CellProps<string | null, TextColumnData<string | null>>
 >(props => {
-  const { validate } = props.columnData
+  const { validate, colNameTemp } = props.columnData
   const { state, dispatch } = useValidation()
 
   useEffect(() => {
@@ -24,13 +25,23 @@ export const ValidatedCell = memo<
       ? dispatch({
           type: 'setValidationResult',
           payload: {
-            row: props.row,
-            column: props.column, // FIX this to use correct column name
+            row: props.rowIndex,
+            column: colNameTemp, // FIX this to use correct column name
             messages: result
           }
         })
-      : dispatch({ type: 'clearValidationResult' })
+      : dispatch({
+          type: 'clearValidationResult',
+          payload: {
+            row: props.rowIndex,
+            column: colNameTemp
+          }
+        })
   }, [props.rowData, validate])
+
+  const validationResult =
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    state[`${props.rowIndex}`]?.[colNameTemp] ?? []
 
   return (
     <>
@@ -65,6 +76,8 @@ type TextColumnOptions<T> = {
   parsePastedValue?: (value: string) => T
 
   validate?: (value: T) => string[]
+
+  colNameTemp: keyof SourceTypeRaw
 }
 
 // export const validatedColumn = createValidatedColumn<string | null>()
@@ -80,8 +93,9 @@ export function createValidatedColumn<T = string | null>({
   formatForCopy = value => String(value ?? ''),
   parsePastedValue = value =>
     (value.replace(/[\n\r]+/g, ' ').trim() || (null as unknown)) as T,
-  validate = () => []
-}: TextColumnOptions<T> = {}): Partial<Column<T, TextColumnData<T>, string>> {
+  validate = () => [],
+  colNameTemp
+}: TextColumnOptions<T>): Partial<Column<T, TextColumnData<T>, string>> {
   return {
     component: ValidatedCell as unknown as CellComponent<T, TextColumnData<T>>,
     columnData: {
@@ -91,7 +105,8 @@ export function createValidatedColumn<T = string | null>({
       formatInputOnFocus,
       formatBlurredInput,
       parseUserInput,
-      validate
+      validate,
+      colNameTemp
     },
     deleteValue: () => deletedValue,
     copyValue: ({ rowData }) => formatForCopy(rowData),

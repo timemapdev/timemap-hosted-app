@@ -2,6 +2,7 @@ import { memo, useEffect, useLayoutEffect, useRef } from 'react'
 import { CellProps } from 'react-datasheet-grid/dist/types'
 import cx from 'classnames'
 import { useFirstRender } from 'components/TextComponent/useFirstRender'
+import { SourceTypeRaw } from 'types'
 
 export type TextColumnData<T> = {
   placeholder?: string
@@ -11,6 +12,7 @@ export type TextColumnData<T> = {
   formatBlurredInput: (value: T) => string
   formatInputOnFocus: (value: T) => string
   validate: (value: T) => string[]
+  colNameTemp: keyof SourceTypeRaw
 }
 
 export const TextComponent = memo<

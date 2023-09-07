@@ -1,6 +1,6 @@
 import Box from '@mui/joy/Box'
 import Input from '@mui/joy/Input'
-import { FC, Profiler, useRef, useState, useMemo } from 'react'
+import { FC, useRef, useState, useMemo } from 'react'
 import { textColumn, keyColumn, DataSheetGridRef } from 'react-datasheet-grid'
 import { ValidationSidebar } from 'components/ValidationSidebar'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
@@ -16,7 +16,7 @@ type PasteSourcesProps = {
 
 export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   const [validationSidebarOpen, setValidationSidebarOpen] = useState(false)
-  const [sources, setSources] = useState<SourceType[]>([{}])
+  const [sources, setSources] = useState<SourceType[]>([{} as SourceType])
   const [selectedCell, setSelectedCell] = useState<CellWithId | null>(null)
   const ref = useRef<DataSheetGridRef>(null)
 
@@ -36,7 +36,8 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'dateOfPost',
           createValidatedColumn({
-            validate: dateOfPostValidation
+            validate: dateOfPostValidation,
+            colNameTemp: 'dateOfPost'
           })
         ),
         title: 'Date',
@@ -130,34 +131,15 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
           />
         </Box>
         <Box height="8px" />
-        <Profiler
-          id="PasteSources"
-          onRender={(
-            id,
-            phase,
-            actualDuration,
-            baseDuration,
-            startTime,
-            commitTime
-          ) => {
-            console.log({
-              id,
-              phase,
-              actualDuration,
-              baseDuration,
-              startTime,
-              commitTime
-            })
-          }}
-        >
-          <PasteSourcesGrid
-            gridRef={ref}
-            sources={sources}
-            columns={columns as Partial<Column<SourceType, any, any>>[]}
-            onChange={setSources}
-            setSelectedCell={setSelectedCell}
-          />
-        </Profiler>
+
+        <PasteSourcesGrid
+          gridRef={ref}
+          sources={sources}
+          columns={columns as Partial<Column<SourceType, any, any>>[]}
+          onChange={setSources}
+          setSelectedCell={setSelectedCell}
+        />
+
         <ValidationSidebar
           open={validationSidebarOpen}
           setValidationSidebarOpen={setValidationSidebarOpen}
