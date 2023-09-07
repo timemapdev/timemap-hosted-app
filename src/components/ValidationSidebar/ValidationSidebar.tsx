@@ -27,8 +27,8 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
             {Object.entries(validationMessages).map(
               ([rowNum, rowValidation]) => {
                 return Object.entries(rowValidation).map(
-                  ([property, messages]) => {
-                    if (!messages) {
+                  ([property, messages = []]) => {
+                    if (!messages.length) {
                       console.log('Missing messages', { rowNum, property })
                     }
                     return (
