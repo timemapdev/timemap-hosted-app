@@ -26,3 +26,15 @@ dist-ssr
 .envrc
 *.generated.*
 build
+
+.yarnrc.yml
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+.envrc
