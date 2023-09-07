@@ -28,7 +28,13 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         minWidth: 150
       },
       {
-        ...keyColumn('sourceUrl', textColumn),
+        ...keyColumn(
+          'sourceUrl',
+          createValidatedColumn({
+            validate: sourceUrlValidation,
+            colNameTemp: 'sourceUrl'
+          })
+        ),
         title: 'Source video hyperlink',
         minWidth: 500
       },
@@ -150,7 +156,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   )
 }
 
-const dateOfPostValidation = (value: string) => {
+const dateOfPostValidation = (value: unknown) => {
   if (typeof value !== 'string') {
     return ['Please enter date']
   }
@@ -160,4 +166,10 @@ const dateOfPostValidation = (value: string) => {
   }
 
   return []
+}
+
+const sourceUrlValidation = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return ['Please enter date']
+  }
 }
