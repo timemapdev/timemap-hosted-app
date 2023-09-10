@@ -6,7 +6,14 @@ export type Denull<T> = {
   [K in keyof T]: NonNullable<T[K]>
 }
 
-export type SourceTypeRaw = Database['public']['Tables']['source']['Row']
+export type SourceTypeRaw = Omit<
+  Database['public']['Tables']['source']['Row'] & {
+    yearOfPost: string
+    oblast: string
+    town: string
+  },
+  'oblastKey' | 'townKey'
+>
 
 export type SourceType = Denull<SourceTypeRaw>
 
