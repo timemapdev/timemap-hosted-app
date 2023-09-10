@@ -24,6 +24,7 @@
       "routes/*": ["./routes/*"],
       "models/*": ["./models/*"],
       "types/*": ["./types/*"],
+      "values/*": ["./values/*"],
     },
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "declarationMap": true,

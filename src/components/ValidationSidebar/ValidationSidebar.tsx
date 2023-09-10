@@ -25,15 +25,13 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
       >
         <Box display="flex" flexDirection="column">
           <List>
-            {Object.entries(validationMessages).map(
-              ([rowNum, rowValidation]) => {
+            {Object.entries(validationMessages)
+              .filter(([rowNum]) => state.skipRows[rowNum] !== true)
+              .map(([rowNum, rowValidation]) => {
                 return Object.entries(rowValidation)
-                  .filter(entry => {
-                    throw new Error(
-                      'Non errors are getting displayed in the validation sidebar. Might need skip check to be implemented'
-                    )
-                    return Boolean(entry[0]) && Boolean(entry[1]?.length)
-                  })
+                  .filter(
+                    entry => Boolean(entry[0]) && Boolean(entry[1]?.length)
+                  )
                   .map(([property, messages = []]) => (
                     <ListItem
                       key={`${rowNum}${property}`}
@@ -68,8 +66,7 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
                       </Box>
                     </ListItem>
                   ))
-              }
-            )}
+              })}
           </List>
         </Box>
       </Drawer>

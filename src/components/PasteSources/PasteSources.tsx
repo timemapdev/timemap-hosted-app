@@ -9,6 +9,7 @@ import { createValidatedColumn } from 'components/ValidatedCell'
 import { ValidationProvider } from 'components/ValidationContext'
 import { ValidationNavButton } from 'components/ValidationSidebar/ValidationNavButton'
 import { SourceType } from 'types'
+import { oblasts, typesOfIncident, meansOfAttack } from 'values'
 
 type PasteSourcesProps = {
   tabIndex: number
@@ -138,20 +139,30 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         minWidth: 200
       },
       {
-        ...keyColumn('typeOfIncident', textColumn),
+        ...keyColumn(
+          'typeOfIncident',
+          createValidatedColumn({
+            validate: typeOfIncidentValidation,
+            colNameTemp: 'typeOfIncident'
+          })
+        ),
         title: 'Type of incident',
         minWidth: 200
       },
       {
-        ...keyColumn('meansOfAttack', textColumn),
+        ...keyColumn(
+          'meansOfAttack',
+          createValidatedColumn({
+            validate: meansOfAttackValidation,
+            colNameTemp: 'meansOfAttack'
+          })
+        ),
         title: 'Means of attack',
         minWidth: 200
       }
     ],
     []
   )
-
-  throw new Error('Kickstart error: create typeOfIncident validation next')
 
   return (
     <ValidationProvider>
@@ -266,40 +277,13 @@ const yearOfPostValidation = (value: unknown) => {
   return []
 }
 
-const oblasts = [
-  'Cherkasy Oblast',
-  'Chernihiv Oblast',
-  'Chernivtsi Oblast',
-  'Dnipropetrovsk Oblast',
-  'Donetsk Oblast',
-  'Ivano-Frankivsk Oblast',
-  'Kharkiv Oblast',
-  'Kherson Oblast',
-  'Khmelnytskyi Oblast',
-  'Kyiv Oblast',
-  'Kirovohrad Oblast',
-  'Luhansk Oblast',
-  'Lviv Oblast',
-  'Mykolaiv Oblast',
-  'Odessa Oblast',
-  'Poltava Oblast',
-  'Rivne Oblast',
-  'Sumy Oblast',
-  'Ternopil Oblast',
-  'Vinnytsia Oblast',
-  'Volyn Oblast',
-  'Zakarpattia Oblast',
-  'Zaporizhia Oblast',
-  'Zhytomyr Oblast'
-]
-
 const oblastValidation = (value: unknown) => {
   if (typeof value !== 'string') {
     return ['Please enter oblast']
   }
 
   if (!oblasts.includes(value)) {
-    return ['Please enter of the following oblasts: ' + oblasts.join(', ')]
+    return ['Please enter one of the following oblasts: ' + oblasts.join(', ')]
   }
 
   return []
@@ -378,6 +362,40 @@ const commentValidation = (value: unknown) => {
   if (typeof value !== 'string') {
     return ['Please enter a comment']
   }
+
+  return []
+}
+
+const typeOfIncidentValidation = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return ['Please enter type of incident']
+  }
+
+  return value
+    .split(',')
+    .map(str => str.trim())
+    .filter(str => !typesOfIncident.includes(str))
+    .map(
+      str =>
+        `${str} is not of the available values: ${typesOfIncident.join(', ')}`
+    )
+
+  return []
+}
+
+const meansOfAttackValidation = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return ['Please enter type of incident']
+  }
+
+  return value
+    .split(',')
+    .map(str => str.trim())
+    .filter(str => !meansOfAttack.includes(str))
+    .map(
+      str =>
+        `${str} is not of the available values: ${meansOfAttack.join(', ')}`
+    )
 
   return []
 }

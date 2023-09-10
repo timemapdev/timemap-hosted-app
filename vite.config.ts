@@ -14,6 +14,7 @@ export default defineConfig({
       routes: '/src/routes',
       models: '/src/models',
       types: '/src/types',
+      values: '/src/values',
     }
   },
   plugins: [react()],
