@@ -26,11 +26,13 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
           <List>
             {Object.entries(validationMessages).map(
               ([rowNum, rowValidation]) => {
-                return Object.entries(rowValidation).map(
-                  ([property, messages = []]) => {
+                return Object.entries(rowValidation)
+                  .filter(entry => Boolean(entry[1]?.length))
+                  .map(([property, messages = []]) => {
                     if (!messages.length) {
                       console.log('Missing messages', { rowNum, property })
                     }
+
                     return (
                       <ListItem
                         key={`${rowNum}${property}`}
@@ -52,7 +54,8 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
                             component="span"
                             fontSize="14px"
                           >{`${messages.reduce(
-                            (acc, message) => `${acc}, ${message}`
+                            (acc, message) => `${acc}, ${message}`,
+                            ''
                           )}`}</Typography>
                           <Typography
                             component="span"
@@ -64,8 +67,7 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
                         </Box>
                       </ListItem>
                     )
-                  }
-                )
+                  })
               }
             )}
           </List>

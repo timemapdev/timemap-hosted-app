@@ -13,8 +13,13 @@ export const ValidationNavButton: FC<ValidationNavButtonProps> = ({
   setValidationSidebarOpen
 }) => {
   const { state } = useValidation()
-  const errorCount = Object.values(state).reduce((acc, curr) => {
-    return Object.keys(curr).length + acc
+
+  const errorCount = Object.values(state).reduce((totalCount, curr) => {
+    const messageCount = Object.values(curr).reduce((count, messages) => {
+      return count + (messages?.length ? messages.length : 0)
+    }, 0)
+
+    return totalCount + messageCount
   }, 0)
 
   return (

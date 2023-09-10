@@ -44,6 +44,10 @@ function validationReducer(state: State, action: Action) {
 
       const invalidColumns = Object.keys(state[row] ?? {})
 
+      if (!invalidColumns.length) {
+        state
+      }
+
       if (invalidColumns.length === 1 && invalidColumns[0] === column) {
         const { [row]: _, ...newState } = state
         return newState

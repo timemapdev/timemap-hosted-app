@@ -21,7 +21,8 @@ export const ValidatedCell = memo<
 
   useEffect(() => {
     const result = validate(props.rowData)
-    result.length
+
+    result?.length
       ? dispatch({
           type: 'setValidationResult',
           payload: {
@@ -46,7 +47,7 @@ export const ValidatedCell = memo<
   return (
     <>
       <TextComponent {...props} />
-      {validationResult.length ? (
+      {validationResult?.length ? (
         <Tooltip title={validationResult.join(', ')} variant="plain">
           <IconButton>
             <Error color="danger" size="sm" />
