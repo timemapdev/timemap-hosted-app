@@ -14,9 +14,13 @@ export const App: FC = () => (
         body {
           margin: 0;
         }
+        .dsg-cell-header {
+          border-top: none;
+        }
         .dsg-container {
           height: 100% !important;
           display: flex;
+          position: relative;
         }
         .dsg-input {
           font-size: 14px;

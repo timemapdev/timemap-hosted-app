@@ -14,7 +14,8 @@ type ValidationSidebarProps = {
 
 export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
   ({ gridRef, open, setValidationSidebarOpen }) => {
-    const { state: validationMessages } = useValidation()
+    const { state } = useValidation()
+    const validationMessages = state.validation
     return (
       <Drawer
         position="right"
@@ -28,46 +29,40 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
               ([rowNum, rowValidation]) => {
                 return Object.entries(rowValidation)
                   .filter(entry => Boolean(entry[1]?.length))
-                  .map(([property, messages = []]) => {
-                    if (!messages.length) {
-                      console.log('Missing messages', { rowNum, property })
-                    }
-
-                    return (
-                      <ListItem
-                        key={`${rowNum}${property}`}
-                        onClick={() => {
-                          gridRef.current?.setActiveCell({
-                            row: Number(rowNum),
-                            col: property
-                          })
-                        }}
-                        sx={{
-                          cursor: 'pointer',
-                          ':hover': {
-                            textDecoration: 'underline'
-                          }
-                        }}
-                      >
-                        <Box display="flex" flexDirection="column">
-                          <Typography
-                            component="span"
-                            fontSize="14px"
-                          >{`${messages.reduce(
-                            (acc, message) => `${acc}, ${message}`,
-                            ''
-                          )}`}</Typography>
-                          <Typography
-                            component="span"
-                            fontSize="12px"
-                            sx={theme => ({
-                              color: `${theme.vars.palette.neutral[400]}`
-                            })}
-                          >{`Row: ${rowNum}, Column: ${property}`}</Typography>
-                        </Box>
-                      </ListItem>
-                    )
-                  })
+                  .map(([property, messages = []]) => (
+                    <ListItem
+                      key={`${rowNum}${property}`}
+                      onClick={() => {
+                        gridRef.current?.setActiveCell({
+                          row: Number(rowNum),
+                          col: property
+                        })
+                      }}
+                      sx={{
+                        cursor: 'pointer',
+                        ':hover': {
+                          textDecoration: 'underline'
+                        }
+                      }}
+                    >
+                      <Box display="flex" flexDirection="column">
+                        <Typography
+                          component="span"
+                          fontSize="14px"
+                        >{`${messages.reduce(
+                          (acc, message) => `${acc}, ${message}`,
+                          ''
+                        )}`}</Typography>
+                        <Typography
+                          component="span"
+                          fontSize="12px"
+                          sx={theme => ({
+                            color: `${theme.vars.palette.neutral[400]}`
+                          })}
+                        >{`Row: ${rowNum}, Column: ${property}`}</Typography>
+                      </Box>
+                    </ListItem>
+                  ))
               }
             )}
           </List>

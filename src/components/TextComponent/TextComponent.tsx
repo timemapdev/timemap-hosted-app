@@ -11,7 +11,8 @@ export type TextColumnData<T> = {
   parseUserInput: (value: string) => T
   formatBlurredInput: (value: T) => string
   formatInputOnFocus: (value: T) => string
-  validate: (value: T) => string[]
+  validate?: (value: T) => string[]
+  skipCheck?: (value: T) => boolean
   colNameTemp: keyof SourceTypeRaw
 }
 

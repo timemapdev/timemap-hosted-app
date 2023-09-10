@@ -75,7 +75,6 @@ export const Sources: FC<SourcesProps> = ({ index }) => {
             { value: 'vanilla', label: 'Vanilla' }
           ],
           onCreateOption: value => {
-            console.log('VAlue', value)
             setSiteSidebarOpen(true)
             setTownSnippet(value)
           }

@@ -14,13 +14,24 @@ export const ValidationNavButton: FC<ValidationNavButtonProps> = ({
 }) => {
   const { state } = useValidation()
 
-  const errorCount = Object.values(state).reduce((totalCount, curr) => {
-    const messageCount = Object.values(curr).reduce((count, messages) => {
-      return count + (messages?.length ? messages.length : 0)
-    }, 0)
+  const errorCount = Object.entries(state.validation).reduce(
+    (totalCount, [rowNum, rowValidation]) => {
+      // do not count skipped rows
+      if (state.skipRows[rowNum]) {
+        return totalCount
+      }
 
-    return totalCount + messageCount
-  }, 0)
+      const messageCount = Object.values(rowValidation).reduce(
+        (count, messages) => {
+          return count + (messages?.length ? messages.length : 0)
+        },
+        0
+      )
+
+      return totalCount + messageCount
+    },
+    0
+  )
 
   return (
     <Box

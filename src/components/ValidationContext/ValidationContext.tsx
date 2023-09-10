@@ -15,10 +15,19 @@ type ClearValidationResult = {
   payload: SourceValidationResultLocation
 }
 
-type Action = SetValidationResult | ClearValidationResult
+type SetSkipRow = {
+  type: 'setSkipRow'
+  payload: { row: number; skip: boolean }
+}
+
+type Action = SetValidationResult | ClearValidationResult | SetSkipRow
 
 type Dispatch = (action: Action) => void
-type State = Record<string, SourceValidationMessages>
+type State = {
+  validation: Record<string, SourceValidationMessages>
+  skipRows: Record<string, boolean>
+}
+
 type ValidationProviderProps = { children: ReactNode }
 
 const ValidationStateContext = createContext<
@@ -32,9 +41,12 @@ function validationReducer(state: State, action: Action) {
 
       return {
         ...state,
-        [row]: {
-          ...state[row],
-          [column]: messages
+        validation: {
+          ...state.validation,
+          [row]: {
+            ...state.validation[row],
+            [column]: messages
+          }
         }
       }
     }
@@ -42,22 +54,42 @@ function validationReducer(state: State, action: Action) {
     case 'clearValidationResult': {
       const { row, column } = action.payload
 
-      const invalidColumns = Object.keys(state[row] ?? {})
+      const invalidColumns = Object.keys(state.validation[row] ?? {})
 
       if (!invalidColumns.length) {
         state
       }
 
       if (invalidColumns.length === 1 && invalidColumns[0] === column) {
-        const { [row]: _, ...newState } = state
-        return newState
+        const { [row]: _, ...newState } = state.validation
+        return {
+          ...state,
+          validation: {
+            ...newState
+          }
+        }
       } else {
         return {
           ...state,
-          [row]: {
-            ...state[row],
-            [column]: undefined
+          validation: {
+            ...state.validation,
+            [row]: {
+              ...state.validation[row],
+              [column]: undefined
+            }
           }
+        }
+      }
+    }
+
+    case 'setSkipRow': {
+      const { row, skip } = action.payload
+
+      return {
+        ...state,
+        skipRows: {
+          ...state.skipRows,
+          [row]: skip
         }
       }
     }
@@ -65,7 +97,10 @@ function validationReducer(state: State, action: Action) {
 }
 
 export function ValidationProvider({ children }: ValidationProviderProps) {
-  const [state, dispatch] = useReducer(validationReducer, {})
+  const [state, dispatch] = useReducer(validationReducer, {
+    validation: {},
+    skipRows: {}
+  })
   // NOTE: you *might* need to memoize this value
   // Learn more in http://kcd.im/optimize-context
   const value = { state, dispatch }

@@ -16,39 +16,53 @@ import { SourceTypeRaw } from 'types'
 export const ValidatedCell = memo<
   CellProps<string | null, TextColumnData<string | null>>
 >(props => {
-  const { validate, colNameTemp } = props.columnData
+  const { validate, colNameTemp, skipCheck } = props.columnData
   const { state, dispatch } = useValidation()
 
   useEffect(() => {
-    const result = validate(props.rowData)
+    if (skipCheck && state.skipRows[props.rowIndex] === undefined) {
+      const skip = skipCheck(props.rowData)
 
-    result?.length
-      ? dispatch({
-          type: 'setValidationResult',
-          payload: {
-            row: props.rowIndex,
-            column: colNameTemp, // FIX this to use correct column name
-            messages: result
-          }
-        })
-      : dispatch({
-          type: 'clearValidationResult',
-          payload: {
-            row: props.rowIndex,
-            column: colNameTemp
-          }
-        })
+      dispatch({
+        type: 'setSkipRow',
+        payload: {
+          row: props.rowIndex,
+          skip
+        }
+      })
+    }
+
+    if (validate && !state.skipRows[props.rowIndex]) {
+      const result = validate(props.rowData)
+
+      result?.length
+        ? dispatch({
+            type: 'setValidationResult',
+            payload: {
+              row: props.rowIndex,
+              column: colNameTemp, // FIX this to use correct column name
+              messages: result
+            }
+          })
+        : dispatch({
+            type: 'clearValidationResult',
+            payload: {
+              row: props.rowIndex,
+              column: colNameTemp
+            }
+          })
+    }
   }, [props.rowData, validate])
 
-  const validationResult =
+  const validationResult: string[] =
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    state[`${props.rowIndex}`]?.[colNameTemp] ?? []
+    state.validation[`${props.rowIndex}`]?.[colNameTemp] ?? []
 
   return (
     <>
       <TextComponent {...props} />
-      {validationResult?.length ? (
-        <Tooltip title={validationResult.join(', ')} variant="plain">
+      {validationResult?.length && !state.skipRows[props.rowIndex] ? (
+        <Tooltip title={validationResult.join(', ')} variant="solid">
           <IconButton>
             <Error color="danger" size="sm" />
           </IconButton>
@@ -79,6 +93,8 @@ type TextColumnOptions<T> = {
   validate?: (value: T) => string[]
 
   colNameTemp: keyof SourceTypeRaw
+
+  skipCheck?: (value: T) => boolean
 }
 
 // export const validatedColumn = createValidatedColumn<string | null>()
@@ -95,6 +111,7 @@ export function createValidatedColumn<T = string | null>({
   parsePastedValue = value =>
     (value.replace(/[\n\r]+/g, ' ').trim() || (null as unknown)) as T,
   validate = () => [],
+  skipCheck,
   colNameTemp
 }: TextColumnOptions<T>): Partial<Column<T, TextColumnData<T>, string>> {
   return {
@@ -107,7 +124,8 @@ export function createValidatedColumn<T = string | null>({
       formatBlurredInput,
       parseUserInput,
       validate,
-      colNameTemp
+      colNameTemp,
+      skipCheck
     },
     deleteValue: () => deletedValue,
     copyValue: ({ rowData }) => formatForCopy(rowData),
