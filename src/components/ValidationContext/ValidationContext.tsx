@@ -1,28 +1,19 @@
 import { ReactNode, createContext, useContext, useReducer } from 'react'
-import {
-  SourceValidationMessages,
-  SourceValidationResult,
-  SourceValidationResultLocation
-} from 'types'
+import { SourceValidationMessages, ValidationResults } from 'types'
 
-type SetValidationResult = {
-  type: 'setValidationResult'
-  payload: SourceValidationResult
+type SetValidationChanges<T> = {
+  type: 'setValidationChanges'
+  payload: ValidationResults<T>
 }
 
-type ClearValidationResult = {
-  type: 'clearValidationResult'
-  payload: SourceValidationResultLocation
+type SetSkipRowChanges = {
+  type: 'setSkipRowChanges'
+  payload: Record<string, boolean>
 }
 
-type SetSkipRow = {
-  type: 'setSkipRow'
-  payload: { row: number; skip: boolean }
-}
+type Action<T> = SetValidationChanges<T> | SetSkipRowChanges
 
-type Action = SetValidationResult | ClearValidationResult | SetSkipRow
-
-type Dispatch = (action: Action) => void
+type Dispatch = <T extends Record<string, unknown>>(action: Action<T>) => void
 type State = {
   validation: Record<string, SourceValidationMessages>
   skipRows: Record<string, boolean>
@@ -34,63 +25,52 @@ const ValidationStateContext = createContext<
   { state: State; dispatch: Dispatch } | undefined
 >(undefined)
 
-function validationReducer(state: State, action: Action) {
+const validationReducer = <T extends Record<string, unknown>>(
+  state: State,
+  action: Action<T>
+) => {
   switch (action.type) {
-    case 'setValidationResult': {
-      const { row, column, messages } = action.payload
+    case 'setValidationChanges': {
+      const validationChanges = action.payload
+
+      const updatedValidation = Object.entries(validationChanges).reduce(
+        (acc, [rowNum, columnResults]) => {
+          return Object.entries(columnResults).reduce(
+            (innerState, [columnName, messages]) => ({
+              ...innerState,
+              [rowNum]: {
+                ...innerState[rowNum],
+                [columnName]: messages?.length ? messages : undefined
+              }
+            }),
+            acc
+          )
+        },
+        state.validation
+      )
 
       return {
         ...state,
-        validation: {
-          ...state.validation,
-          [row]: {
-            ...state.validation[row],
-            [column]: messages
-          }
-        }
+        validation: updatedValidation
       }
     }
 
-    case 'clearValidationResult': {
-      const { row, column } = action.payload
+    case 'setSkipRowChanges': {
+      const skipChanges = action.payload
 
-      const invalidColumns = Object.keys(state.validation[row] ?? {})
-
-      if (!invalidColumns.length) {
-        state
-      }
-
-      if (invalidColumns.length === 1 && invalidColumns[0] === column) {
-        const { [row]: _, ...newState } = state.validation
-        return {
-          ...state,
-          validation: {
-            ...newState
+      const updatedSkipRows = Object.entries(skipChanges).reduce(
+        (acc, [rowNum, skip]) => {
+          return {
+            ...acc,
+            [rowNum]: skip
           }
-        }
-      } else {
-        return {
-          ...state,
-          validation: {
-            ...state.validation,
-            [row]: {
-              ...state.validation[row],
-              [column]: undefined
-            }
-          }
-        }
-      }
-    }
-
-    case 'setSkipRow': {
-      const { row, skip } = action.payload
+        },
+        state.skipRows
+      )
 
       return {
         ...state,
-        skipRows: {
-          ...state.skipRows,
-          [row]: skip
-        }
+        skipRows: updatedSkipRows
       }
     }
   }

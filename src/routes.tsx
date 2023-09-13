@@ -4,6 +4,7 @@ import { ContentTabs } from 'components/ContentTabs/ContentTabs'
 import { Events } from 'components/Events'
 import { Login } from 'components/Login'
 import { PasteSources } from 'components/PasteSources'
+import { ValidationProvider } from 'components/ValidationContext'
 import { createBrowserRouter } from 'react-router-dom'
 
 export const routes = [
@@ -21,7 +22,11 @@ export const routes = [
         children: [
           {
             path: 'sources',
-            element: <PasteSources tabIndex={0} />
+            element: (
+              <ValidationProvider>
+                <PasteSources tabIndex={0} />
+              </ValidationProvider>
+            )
           },
           {
             path: 'events',

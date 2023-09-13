@@ -12,7 +12,7 @@ export type SourceTypeRaw = Omit<
     oblast: string
     town: string
   },
-  'oblastKey' | 'townKey'
+  'oblastKey' | 'townKey' | 'id' | 'eventKey' | 'createdAt'
 >
 
 export type SourceType = Denull<SourceTypeRaw>
@@ -26,10 +26,6 @@ export type SourceValidationMessages = ValidationMessages<SourceTypeRaw>
 export type SourceValidationResultLocation = {
   row: number
   column: keyof SourceTypeRaw
-}
-
-export type SourceValidationResult = SourceValidationResultLocation & {
-  messages: string[]
 }
 
 export type PropChange = {

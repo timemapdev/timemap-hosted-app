@@ -15,6 +15,9 @@ type ValidationSidebarProps = {
 export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
   ({ gridRef, open, setValidationSidebarOpen }) => {
     const { state } = useValidation()
+
+    console.log('state', state)
+
     const validationMessages = state.validation
     return (
       <Drawer

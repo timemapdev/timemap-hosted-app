@@ -1,12 +1,12 @@
 import Box from '@mui/joy/Box'
 import Input from '@mui/joy/Input'
-import { FC, useRef, useState, useMemo, useCallback } from 'react'
+import { FC, useRef, useState, useMemo, useEffect } from 'react'
 import { textColumn, keyColumn, DataSheetGridRef } from 'react-datasheet-grid'
 import { ValidationSidebar } from 'components/ValidationSidebar'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
 import { PasteSourcesGrid } from 'components/PasteSources/PasteSourcesGrid'
 import { createValidatedColumn } from 'components/ValidatedCell'
-import { ValidationProvider } from 'components/ValidationContext'
+import { useValidation } from 'components/ValidationContext'
 import { ValidationNavButton } from 'components/ValidationSidebar/ValidationNavButton'
 import {
   ObjectChange,
@@ -24,24 +24,45 @@ type PasteSourcesProps = {
   tabIndex: number
 }
 
+const emptyRow = {
+  timestamp: '',
+  sourceUrl: '',
+  dateOfPost: '',
+  yearOfPost: '',
+  oblast: '',
+  town: '',
+  manualLatLng: '',
+  googleDriveLinks: [],
+  fileNames: '',
+  archiveLink: '',
+  comment: '',
+  typeOfIncident: [],
+  meansOfAttack: []
+}
+
 export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   const [validationSidebarOpen, setValidationSidebarOpen] = useState(false)
-  const [sources, setSourcesRaw] = useState<SourceType[]>([{} as SourceType])
+  const [sources, setSources] = useState<SourceType[]>([emptyRow])
+  const previousSources = useRef<SourceType[]>(sources)
   const [selectedCell, setSelectedCell] = useState<CellWithId | null>(null)
   const ref = useRef<DataSheetGridRef>(null)
+  const { dispatch } = useValidation()
 
-  const setSources = useCallback((sourcesCurrent: SourceType[]) => {
-    setSourcesRaw(sourcesPrevious => {
-      const changes = getStateChanges(sourcesCurrent, sourcesPrevious)
+  useEffect(() => {
+    const changes = getStateChanges(sources, previousSources.current)
 
-      if (changes) {
-        const validationResults = validateState(sourceValidationRules)(changes)
-        console.log(validationResults)
-      }
+    if (changes) {
+      dispatch({
+        type: 'setSkipRowChanges',
+        payload: getSkipRows(changes)
+      })
 
-      return sourcesCurrent
-    })
-  }, [])
+      dispatch({
+        type: 'setValidationChanges',
+        payload: validateSources(changes) ?? {}
+      })
+    }
+  }, [dispatch, sources])
 
   const columns = useMemo(
     () => [
@@ -175,63 +196,76 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   )
 
   return (
-    <ValidationProvider>
+    <Box
+      role="tabpanel"
+      id={`simple-tabpanel-${tabIndex}`}
+      aria-labelledby={`simple-tab-${tabIndex}`}
+      width="100%"
+    >
       <Box
-        role="tabpanel"
-        id={`simple-tabpanel-${tabIndex}`}
-        aria-labelledby={`simple-tab-${tabIndex}`}
-        width="100%"
+        display="flex"
+        padding="8px"
+        position="sticky"
+        top="0"
+        zIndex="1"
+        borderBottom="1px solid #e8ebed"
+        sx={{ backgroundColor: '#F5F7FA' }}
       >
-        <Box
-          display="flex"
-          padding="8px"
-          position="sticky"
-          top="0"
-          zIndex="1"
-          borderBottom="1px solid #e8ebed"
-          sx={{ backgroundColor: '#F5F7FA' }}
-        >
-          <Box flex={1}>
-            <Input
-              disabled={true}
-              // onFocus={() => {
-              //   if (selectedCell && ref.current) {
-              //     ref.current?.setSelection({
-              //       min: selectedCell,
-              //       max: selectedCell
-              //     })
-              //   }
-              // }}
-              value={
-                selectedCell && selectedCell.colId
-                  ? sources[selectedCell?.row][
-                      selectedCell.colId as keyof SourceType
-                    ] ?? ''
-                  : ''
-              }
-            />
-          </Box>
-          <ValidationNavButton
-            setValidationSidebarOpen={setValidationSidebarOpen}
+        <Box flex={1}>
+          <Input
+            disabled={true}
+            // onFocus={() => {
+            //   if (selectedCell && ref.current) {
+            //     ref.current?.setSelection({
+            //       min: selectedCell,
+            //       max: selectedCell
+            //     })
+            //   }
+            // }}
+            value={
+              selectedCell && selectedCell.colId
+                ? sources[selectedCell?.row][
+                    selectedCell.colId as keyof SourceType
+                  ] ?? ''
+                : ''
+            }
           />
         </Box>
-
-        <PasteSourcesGrid
-          gridRef={ref}
-          sources={sources}
-          columns={columns as Partial<Column<SourceType, any, any>>[]}
-          onChange={setSources}
-          setSelectedCell={setSelectedCell}
-        />
-
-        <ValidationSidebar
-          open={validationSidebarOpen}
+        <ValidationNavButton
           setValidationSidebarOpen={setValidationSidebarOpen}
-          gridRef={ref}
         />
       </Box>
-    </ValidationProvider>
+
+      <PasteSourcesGrid
+        gridRef={ref}
+        sources={sources}
+        columns={columns as Partial<Column<SourceType, any, any>>[]}
+        onChange={setSources}
+        setSelectedCell={setSelectedCell}
+      />
+
+      <ValidationSidebar
+        open={validationSidebarOpen}
+        setValidationSidebarOpen={setValidationSidebarOpen}
+        gridRef={ref}
+      />
+    </Box>
   )
+}
+
+const getSkipRows = <T extends Record<string, unknown>>(
+  changes: StateChanges<T>
+) => {
+  return Object.entries(changes).reduce((acc, [rowNum, objectChanges]) => {
+    if (typeof objectChanges.timestamp === 'undefined') {
+      return acc
+    }
+
+    return {
+      ...acc,
+      [rowNum]: !objectChanges.timestamp.current
+    }
+  }, {})
 }
 
 const validateState =
@@ -280,3 +314,5 @@ const validateObject =
 
     return results === initial ? undefined : results
   }
+
+const validateSources = validateState(sourceValidationRules)

@@ -22,7 +22,7 @@ useEffect(() => {
     const skip = skipCheck(props.rowData)
 
     dispatch({
-      type: 'setSkipRow',
+      type: 'setSkipRowChanges',
       payload: {
         row: props.rowIndex,
         skip
@@ -35,7 +35,7 @@ useEffect(() => {
 
     result?.length
       ? dispatch({
-          type: 'setValidationResult',
+          type: 'setValidationChanges',
           payload: {
             row: props.rowIndex,
             column: colNameTemp, // FIX this to use correct column name
