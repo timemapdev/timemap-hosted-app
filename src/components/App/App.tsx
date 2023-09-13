@@ -17,11 +17,6 @@ export const App: FC = () => (
         .dsg-cell-header {
           border-top: none;
         }
-        .dsg-container {
-          height: 100% !important;
-          display: flex;
-          position: relative;
-        }
         .dsg-input {
           font-size: 14px;
           line-height: 16px;

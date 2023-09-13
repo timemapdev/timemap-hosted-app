@@ -1,6 +1,6 @@
 import Box from '@mui/joy/Box'
 import Input from '@mui/joy/Input'
-import { FC, useRef, useState, useMemo } from 'react'
+import { FC, useRef, useState, useMemo, useCallback } from 'react'
 import { textColumn, keyColumn, DataSheetGridRef } from 'react-datasheet-grid'
 import { ValidationSidebar } from 'components/ValidationSidebar'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
@@ -17,9 +17,22 @@ type PasteSourcesProps = {
 
 export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   const [validationSidebarOpen, setValidationSidebarOpen] = useState(false)
-  const [sources, setSources] = useState<SourceType[]>([{} as SourceType])
+  const [sources, setSourcesRaw] = useState<SourceType[]>([{} as SourceType])
   const [selectedCell, setSelectedCell] = useState<CellWithId | null>(null)
   const ref = useRef<DataSheetGridRef>(null)
+
+  console.log('soureces', sources)
+
+  const setSources = useCallback((sourcesInput: SourceType[]) => {
+    setSourcesRaw(sourcesCurrent => {
+      sourcesInput.forEach((source, index) => {
+        if (source !== sourcesCurrent[index]) {
+          console.log('mismatch on line: ', index)
+        }
+      })
+      return sourcesInput
+    })
+  }, [])
 
   const columns = useMemo(
     () => [
@@ -27,8 +40,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'timestamp',
           createValidatedColumn({
-            skipCheck: rowData => rowData === null || rowData === undefined,
-            colNameTemp: 'timestamp'
+            columnName: 'timestamp'
           })
         ),
         title: 'Upload time',
@@ -38,8 +50,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'sourceUrl',
           createValidatedColumn({
-            validate: sourceUrlValidation,
-            colNameTemp: 'sourceUrl'
+            columnName: 'sourceUrl'
           })
         ),
         title: 'Source video hyperlink',
@@ -49,8 +60,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'dateOfPost',
           createValidatedColumn({
-            validate: dateOfPostValidation,
-            colNameTemp: 'dateOfPost'
+            columnName: 'dateOfPost'
           })
         ),
         title: 'Date',
@@ -60,8 +70,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'yearOfPost',
           createValidatedColumn({
-            validate: yearOfPostValidation,
-            colNameTemp: 'yearOfPost'
+            columnName: 'yearOfPost'
           })
         ),
         title: 'Year',
@@ -71,8 +80,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'oblast',
           createValidatedColumn({
-            validate: oblastValidation,
-            colNameTemp: 'oblast'
+            columnName: 'oblast'
           })
         ),
         title: 'Oblast',
@@ -82,8 +90,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'town',
           createValidatedColumn({
-            validate: townValidation,
-            colNameTemp: 'town'
+            columnName: 'town'
           })
         ),
         title: 'Town/village',
@@ -93,8 +100,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'manualLatLng',
           createValidatedColumn({
-            validate: coordinatesValidation,
-            colNameTemp: 'manualLatLng'
+            columnName: 'manualLatLng'
           })
         ),
         title: 'Coordinates',
@@ -104,8 +110,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'googleDriveLinks',
           createValidatedColumn({
-            validate: googleDriveLinksValidation,
-            colNameTemp: 'googleDriveLinks'
+            columnName: 'googleDriveLinks'
           })
         ),
         title: 'Upload file or files',
@@ -120,8 +125,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'archiveLink',
           createValidatedColumn({
-            validate: archiveLinkValidation,
-            colNameTemp: 'archiveLink'
+            columnName: 'archiveLink'
           })
         ),
         title: 'Source archive link',
@@ -131,8 +135,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'comment',
           createValidatedColumn({
-            validate: commentValidation,
-            colNameTemp: 'comment'
+            columnName: 'comment'
           })
         ),
         title: 'Comment',
@@ -142,8 +145,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'typeOfIncident',
           createValidatedColumn({
-            validate: typeOfIncidentValidation,
-            colNameTemp: 'typeOfIncident'
+            columnName: 'typeOfIncident'
           })
         ),
         title: 'Type of incident',
@@ -153,8 +155,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         ...keyColumn(
           'meansOfAttack',
           createValidatedColumn({
-            validate: meansOfAttackValidation,
-            colNameTemp: 'meansOfAttack'
+            columnName: 'meansOfAttack'
           })
         ),
         title: 'Means of attack',
@@ -194,7 +195,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
               // }}
               value={
                 selectedCell && selectedCell.colId
-                  ? sources[selectedCell?.row][
+                  ? sources[selectedCell?.row]?.[
                       selectedCell.colId as keyof SourceType
                     ] ?? ''
                   : ''
