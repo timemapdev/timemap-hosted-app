@@ -1,4 +1,4 @@
-export const oblasts = [
+export const oblastValues = [
   'Cherkasy Oblast',
   'Chernihiv Oblast',
   'Chernivtsi Oblast',
@@ -25,7 +25,7 @@ export const oblasts = [
   'Zhytomyr Oblast'
 ]
 
-export const typesOfIncident = [
+export const typeOfIncidentValues = [
   '1 Unlawful attacks on civilians',
   '1.1 Children',
   '2 Attacks on hospitals, medical staff and vehicles',
@@ -84,7 +84,7 @@ export const typesOfIncident = [
   '13 Compelling civilians to take part in the operations of war directed against their own country'
 ]
 
-export const meansOfAttack = [
+export const meansOfAttackValues = [
   '1 Undefined',
   '2 Artillery fire',
   '2.1 Undefined',

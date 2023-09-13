@@ -8,8 +8,17 @@ import { PasteSourcesGrid } from 'components/PasteSources/PasteSourcesGrid'
 import { createValidatedColumn } from 'components/ValidatedCell'
 import { ValidationProvider } from 'components/ValidationContext'
 import { ValidationNavButton } from 'components/ValidationSidebar/ValidationNavButton'
-import { SourceType } from 'types'
-import { oblasts, typesOfIncident, meansOfAttack } from 'values'
+import {
+  ObjectChange,
+  ObjectValidationResult,
+  SourceType,
+  StateChanges,
+  ValidationResults,
+  ValidationRules
+} from 'types'
+
+import { getStateChanges } from 'lib/changes'
+import { sourceValidationRules } from 'components/PasteSources/validation'
 
 type PasteSourcesProps = {
   tabIndex: number
@@ -21,16 +30,16 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   const [selectedCell, setSelectedCell] = useState<CellWithId | null>(null)
   const ref = useRef<DataSheetGridRef>(null)
 
-  console.log('soureces', sources)
+  const setSources = useCallback((sourcesCurrent: SourceType[]) => {
+    setSourcesRaw(sourcesPrevious => {
+      const changes = getStateChanges(sourcesCurrent, sourcesPrevious)
 
-  const setSources = useCallback((sourcesInput: SourceType[]) => {
-    setSourcesRaw(sourcesCurrent => {
-      sourcesInput.forEach((source, index) => {
-        if (source !== sourcesCurrent[index]) {
-          console.log('mismatch on line: ', index)
-        }
-      })
-      return sourcesInput
+      if (changes) {
+        const validationResults = validateState(sourceValidationRules)(changes)
+        console.log(validationResults)
+      }
+
+      return sourcesCurrent
     })
   }, [])
 
@@ -195,7 +204,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
               // }}
               value={
                 selectedCell && selectedCell.colId
-                  ? sources[selectedCell?.row]?.[
+                  ? sources[selectedCell?.row][
                       selectedCell.colId as keyof SourceType
                     ] ?? ''
                   : ''
@@ -225,178 +234,49 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
   )
 }
 
-const URL_REGEX =
-  /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
+const validateState =
+  <T extends Record<string, unknown>>(rules: ValidationRules<T>) =>
+  (data: StateChanges<T>) => {
+    const initial: ValidationResults<T> = {}
 
-const dateOfPostValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter date']
-  }
+    const results = Object.entries(data).reduce<ValidationResults<T>>(
+      (acc, [rowNum, objectChanges]) => {
+        const rowResults = validateObject(rules)(objectChanges)
 
-  if (!/^\d{1,2}.\d{1,2}$/.test(value)) {
-    return ['Please enter date in format DD.MM']
-  }
+        if (!rowResults) {
+          return acc
+        }
 
-  return []
-}
-
-const sourceUrlValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter a source URL']
-  }
-
-  const chunks = value.split(',').map(str => str.trim())
-
-  if (chunks.length > 1) {
-    return [
-      'Multiple comma separated items found. Please place each URL on a separate row'
-    ]
-  }
-
-  if (!URL_REGEX.test(chunks[0])) {
-    return ['Please enter a valid URL']
-  }
-
-  return []
-}
-
-const yearOfPostValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter year']
-  }
-
-  if (!/^\d{4}$/.test(value)) {
-    return ['Please enter year in format YYYY']
-  }
-
-  const year = Number(value)
-
-  if (year < 2022) {
-    return ['Please enter year 2022 or later']
-  }
-
-  return []
-}
-
-const oblastValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter oblast']
-  }
-
-  if (!oblasts.includes(value)) {
-    return ['Please enter one of the following oblasts: ' + oblasts.join(', ')]
-  }
-
-  return []
-}
-
-const townValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter town name']
-  }
-
-  return []
-}
-
-const coordinatesValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter coordinates']
-  }
-
-  const chunks = value
-    .split(',')
-    .map(str => str.trim())
-    .map(str => Number(str))
-
-  if (chunks.length !== 2) {
-    return [
-      'Please enter coordinates in format LAT, LNG, for example 49.8397, 24.0297'
-    ]
-  }
-
-  if (chunks[0] < 44 || chunks[0] > 53) {
-    return ['Please enter latitude between 44 and 53']
-  }
-
-  if (chunks[1] < 22 || chunks[1] > 41) {
-    return ['Please enter longitude between 22 and 41']
-  }
-
-  return []
-}
-
-const googleDriveLinksValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter Google Drive links']
-  }
-
-  const chunks = value.split(',').map(str => str.trim())
-
-  if (chunks.length < 1) {
-    return ['Please enter at least one Google Drive link']
-  }
-
-  const containsInvalidLink = chunks.some(
-    link => !link.startsWith('https://drive.google.com/open?id=')
-  )
-
-  if (containsInvalidLink) {
-    return ['Each link should start with https://drive.google.com/open?id=']
-  }
-
-  return []
-}
-
-const archiveLinkValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter archive link']
-  }
-
-  if (!URL_REGEX.test(value)) {
-    return ['Please enter a valid URL']
-  }
-
-  return []
-}
-
-const commentValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter a comment']
-  }
-
-  return []
-}
-
-const typeOfIncidentValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter type of incident']
-  }
-
-  return value
-    .split(',')
-    .map(str => str.trim())
-    .filter(str => !typesOfIncident.includes(str))
-    .map(
-      str =>
-        `${str} is not of the available values: ${typesOfIncident.join(', ')}`
+        return {
+          ...acc,
+          [rowNum]: rowResults
+        }
+      },
+      initial
     )
 
-  return []
-}
-
-const meansOfAttackValidation = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return ['Please enter type of incident']
+    return results === initial ? undefined : results
   }
 
-  return value
-    .split(',')
-    .map(str => str.trim())
-    .filter(str => !meansOfAttack.includes(str))
-    .map(
-      str =>
-        `${str} is not of the available values: ${meansOfAttack.join(', ')}`
+const validateObject =
+  <T extends Record<string, unknown>>(rules: ValidationRules<T>) =>
+  (rowChange: ObjectChange<T>) => {
+    const initial: ObjectValidationResult<T> = {}
+    const results = Object.entries(rowChange).reduce<ObjectValidationResult<T>>(
+      (acc, [columnName, value]) => {
+        if (!rules[columnName]) {
+          return acc
+        }
+
+        const result = rules[columnName](value?.current)
+
+        return {
+          ...acc,
+          [columnName]: result
+        }
+      },
+      initial
     )
 
-  return []
-}
+    return results === initial ? undefined : results
+  }

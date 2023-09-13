@@ -31,3 +31,20 @@ export type SourceValidationResultLocation = {
 export type SourceValidationResult = SourceValidationResultLocation & {
   messages: string[]
 }
+
+export type PropChange = {
+  previous: unknown
+  current: unknown
+}
+
+export type ObjectChange<T> = Partial<Record<keyof T, PropChange>>
+
+export type StateChanges<T> = Record<string, ObjectChange<T>>
+
+export type ValidationRules<T> = {
+  [key in keyof T]: (value: unknown) => string[] | undefined
+}
+
+export type ValidationResults<T> = Record<string, ObjectValidationResult<T>>
+
+export type ObjectValidationResult<T> = Partial<Record<keyof T, string[]>>
