@@ -21,8 +21,6 @@ export type ValidationMessages<T> = {
   [K in keyof T]?: string[]
 }
 
-export type SourceValidationMessages = ValidationMessages<SourceTypeRaw>
-
 export type SourceValidationResultLocation = {
   row: number
   column: keyof SourceTypeRaw

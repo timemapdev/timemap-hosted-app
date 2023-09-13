@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useReducer } from 'react'
-import { SourceValidationMessages, ValidationResults } from 'types'
+import { SourceType, ValidationResults } from 'types'
 
 type SetValidationChanges<T> = {
   type: 'setValidationChanges'
@@ -14,19 +14,19 @@ type SetSkipRowChanges = {
 type Action<T> = SetValidationChanges<T> | SetSkipRowChanges
 
 type Dispatch = <T extends Record<string, unknown>>(action: Action<T>) => void
-type State = {
-  validation: Record<string, SourceValidationMessages>
+type State<T> = {
+  validation: ValidationResults<T>
   skipRows: Record<string, boolean>
 }
 
 type ValidationProviderProps = { children: ReactNode }
 
 const ValidationStateContext = createContext<
-  { state: State; dispatch: Dispatch } | undefined
+  { state: State<SourceType>; dispatch: Dispatch } | undefined
 >(undefined)
 
 const validationReducer = <T extends Record<string, unknown>>(
-  state: State,
+  state: State<T>,
   action: Action<T>
 ) => {
   switch (action.type) {
