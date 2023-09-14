@@ -5,12 +5,9 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { client } from 'lib/client'
 
 export const Login: FC = () => {
-  console.log('Login')
   const [session, setSession] = useState<Session | null>(null)
 
   useEffect(() => {
-    console.log('getting session')
-
     client.auth
       .getSession()
       .then(({ data }) => {

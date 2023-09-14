@@ -179,7 +179,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
           })
         ),
         title: 'Type of incident',
-        minWidth: 200
+        minWidth: 300
       },
       {
         ...keyColumn(
@@ -189,7 +189,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
           })
         ),
         title: 'Means of attack',
-        minWidth: 200
+        minWidth: 300
       }
     ],
     []
@@ -236,13 +236,15 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
         />
       </Box>
 
-      <PasteSourcesGrid
-        gridRef={ref}
-        sources={sources}
-        columns={columns as Partial<Column<SourceType, any, any>>[]}
-        onChange={setSources}
-        setSelectedCell={setSelectedCell}
-      />
+      <Box width={validationSidebarOpen ? 'calc(100% - 360px)' : '100%'}>
+        <PasteSourcesGrid
+          gridRef={ref}
+          sources={sources}
+          columns={columns as Partial<Column<SourceType, any, any>>[]}
+          onChange={setSources}
+          setSelectedCell={setSelectedCell}
+        />
+      </Box>
 
       <ValidationSidebar
         open={validationSidebarOpen}

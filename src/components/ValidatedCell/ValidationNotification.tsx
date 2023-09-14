@@ -1,9 +1,10 @@
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/joy/IconButton'
+import Tooltip from '@mui/joy/Tooltip'
 import { useValidation } from 'components/ValidationContext'
+import { ErrorIcon } from 'icons/ErrorIcon'
 
 type ValidationNotificationProps<T> = {
-  rowIndex: string
+  rowIndex: number
   columnName: keyof T
 }
 
@@ -11,17 +12,23 @@ export const ValidationNotification = <T extends Record<string, unknown>>({
   rowIndex,
   columnName
 }: ValidationNotificationProps<T>) => {
-  const { state, dispatch } = useValidation()
+  const { state } = useValidation<T>()
+
+  if (state.skipRows[rowIndex]) {
+    return null
+  }
 
   const validationResult = state.validation[rowIndex]?.[columnName]
 
-  return validationResult?.length && !state.skipRows[props.rowIndex] ? (
+  if (!validationResult?.length) {
+    return null
+  }
+
+  return (
     <Tooltip title={validationResult.join(', ')} variant="solid">
-      <IconButton>
-        <Error color="danger" size="sm" />
+      <IconButton color="danger">
+        <ErrorIcon size={20} />
       </IconButton>
     </Tooltip>
-  ) : null
-
-  return null
+  )
 }

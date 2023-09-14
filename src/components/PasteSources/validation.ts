@@ -1,7 +1,7 @@
 import { oblastValues, typeOfIncidentValues, meansOfAttackValues } from 'values'
 
 const URL_REGEX =
-  /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
+  /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/g
 
 const dateOfPost = (value: unknown) => {
   if (typeof value !== 'string') {
@@ -54,7 +54,7 @@ const oblast = (value: unknown) => {
 
   if (!oblastValues.includes(value)) {
     return [
-      'Please enter one of the following oblasts: ' + oblastValues.join(', ')
+      `"${value}" is not of the available values: ${oblastValues.join(', \n')}`
     ]
   }
 }
@@ -115,8 +115,16 @@ const archiveLink = (value: unknown) => {
     return ['Please enter archive link']
   }
 
-  if (!URL_REGEX.test(value)) {
+  const linksMatched = value.match(URL_REGEX)?.length
+
+  console.log({ value, linksMatched })
+
+  if (!linksMatched) {
     return ['Please enter a valid URL']
+  }
+
+  if (linksMatched > 1) {
+    return ['Please enter only one archive link per row']
   }
 }
 
@@ -137,8 +145,8 @@ const typeOfIncident = (value: unknown) => {
     .filter(str => !typeOfIncidentValues.includes(str))
     .map(
       str =>
-        `${str} is not of the available values: ${typeOfIncidentValues.join(
-          ', '
+        `"${str}" is not of the available values: ${typeOfIncidentValues.join(
+          ', \n'
         )}`
     )
 }
@@ -154,8 +162,8 @@ const meansOfAttack = (value: unknown) => {
     .filter(str => !meansOfAttackValues.includes(str))
     .map(
       str =>
-        `${str} is not of the available values: ${meansOfAttackValues.join(
-          ', '
+        `"${str}" is not of the available values: ${meansOfAttackValues.join(
+          ', \n'
         )}`
     )
 }

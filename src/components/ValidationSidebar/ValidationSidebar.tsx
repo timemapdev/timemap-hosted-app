@@ -16,8 +16,6 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
   ({ gridRef, open, setValidationSidebarOpen }) => {
     const { state } = useValidation()
 
-    console.log('state', state)
-
     const validationMessages = state.validation
     return (
       <Drawer
@@ -52,13 +50,9 @@ export const ValidationSidebar: FC<ValidationSidebarProps> = memo(
                       }}
                     >
                       <Box display="flex" flexDirection="column">
-                        <Typography
-                          component="span"
-                          fontSize="14px"
-                        >{`${messages.reduce(
-                          (acc, message) => `${acc}, ${message}`,
-                          ''
-                        )}`}</Typography>
+                        <Typography component="pre" fontSize="14px">
+                          {messages.join(', ')}
+                        </Typography>
                         <Typography
                           component="span"
                           fontSize="12px"

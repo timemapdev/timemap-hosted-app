@@ -1,5 +1,11 @@
-import { ReactNode, createContext, useContext, useReducer } from 'react'
-import { SourceType, ValidationResults } from 'types'
+import {
+  Context,
+  ReactNode,
+  createContext,
+  useContext,
+  useReducer
+} from 'react'
+import { ValidationResults } from 'types'
 
 type SetValidationChanges<T> = {
   type: 'setValidationChanges'
@@ -19,10 +25,18 @@ type State<T> = {
   skipRows: Record<string, boolean>
 }
 
-type ValidationProviderProps = { children: ReactNode }
+type ValidationProviderProps<T> = {
+  children: ReactNode
+  initialState?: State<T>
+}
+
+type ValidationContextData<T> = {
+  state: State<T>
+  dispatch: Dispatch
+}
 
 const ValidationStateContext = createContext<
-  { state: State<SourceType>; dispatch: Dispatch } | undefined
+  ValidationContextData<Record<string, unknown>> | undefined
 >(undefined)
 
 const validationReducer = <T extends Record<string, unknown>>(
@@ -76,7 +90,9 @@ const validationReducer = <T extends Record<string, unknown>>(
   }
 }
 
-export function ValidationProvider({ children }: ValidationProviderProps) {
+export const ValidationProvider = <T extends Record<string, unknown>>({
+  children
+}: ValidationProviderProps<T>) => {
   const [state, dispatch] = useReducer(validationReducer, {
     validation: {},
     skipRows: {}
@@ -91,8 +107,10 @@ export function ValidationProvider({ children }: ValidationProviderProps) {
   )
 }
 
-export function useValidation() {
-  const context = useContext(ValidationStateContext)
+export const useValidation = <T extends Record<string, unknown>>() => {
+  const context = useContext(
+    ValidationStateContext as unknown as Context<ValidationContextData<T>>
+  )
 
   if (context === undefined) {
     throw new Error('useValidation must be used within a ValidationProvider')

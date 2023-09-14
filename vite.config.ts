@@ -15,6 +15,7 @@ export default defineConfig({
       models: '/src/models',
       types: '/src/types',
       values: '/src/values',
+      icons: '/src/icons',
     }
   },
   plugins: [react()],
