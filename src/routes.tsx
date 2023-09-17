@@ -1,7 +1,6 @@
 import { App } from 'components/App'
 import { SourcesInput } from 'components/SourcesInput'
 import { SourcesOutput } from 'components/SourcesOutput'
-import { ValidationProvider } from 'components/ValidationContext'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 
 export const routes = [
@@ -12,11 +11,7 @@ export const routes = [
       { path: '/', element: <Navigate to="/inputs" /> },
       {
         path: 'inputs',
-        element: (
-          <ValidationProvider>
-            <SourcesInput tabIndex={0} />
-          </ValidationProvider>
-        )
+        element: <SourcesInput tabIndex={0} />
       },
       {
         path: 'exports/sources',

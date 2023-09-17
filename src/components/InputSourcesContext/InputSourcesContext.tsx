@@ -51,7 +51,7 @@ const emptySourceInput: SourceType = {
   oblast: '',
   town: '',
   manualLatLng: '',
-  googleDriveLinks: [],
+  googleDriveLinks: '',
   fileNames: '',
   archiveLink: '',
   comment: '',

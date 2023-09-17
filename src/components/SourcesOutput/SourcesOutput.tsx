@@ -15,7 +15,7 @@ type SourceOutputRow = {
   thumbnail: string
   description: string
   type: string
-  paths1: string
+  path1: string
 }
 
 type SourcesOutputProps = {
@@ -29,20 +29,22 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
   const { state: validationState } = useValidation()
   const { validation, skipRows } = validationState
 
+  console.log({ validationState, inputsState })
+
   const maxPaths = inputSources.reduce((acc, { googleDriveLinks }) => {
-    return Math.max(acc, googleDriveLinks?.length ?? 0)
+    return Math.max(acc, googleDriveLinks?.split(',')?.length ?? 0)
   }, 0)
 
   const exportsSources: SourceOutputRow[] = inputSources
     .filter((_, index) => {
-      if (skipRows[index]) {
+      if (skipRows[index] !== false) {
         return false
       }
 
-      if (validation[index]) {
+      if (Object.values(validation[index]).some(col => col !== undefined)) {
         return false
       }
-      debugger
+
       // TODO need to make sure validation has happened
       return true
     })
@@ -58,7 +60,7 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
         ...generatePaths({
           sourceSite,
           sourceUrl,
-          googleDriveLinks: googleDriveLinks
+          googleDriveLinks: googleDriveLinks.split(',').map(link => link.trim())
         })
       }
     })
@@ -128,15 +130,18 @@ const generatePaths = ({
   googleDriveLinks
 }: GeneratePathsArgs) => {
   if (sourceSite === 'Manual') {
-    getGoogleDriveIds(googleDriveLinks).reduce((acc, id, index) => {
-      return {
+    const paths = getGoogleDriveIds(googleDriveLinks).reduce(
+      (acc, id, index) => ({
         ...acc,
-        [`paths${index + 1}`]: id
-      }
-    }, {})
+        [`path${index + 1}`]: id
+      }),
+      {}
+    )
+
+    return paths
   }
 
   return {
-    paths1: sourceUrl
+    path1: sourceUrl
   }
 }

@@ -117,8 +117,6 @@ const archiveLink = (value: unknown) => {
 
   const linksMatched = value.match(URL_REGEX)?.length
 
-  console.log({ value, linksMatched })
-
   if (!linksMatched) {
     return ['Please enter a valid URL']
   }
