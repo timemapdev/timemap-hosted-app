@@ -12,7 +12,7 @@ type PasteSourceGridProps = {
   setSelectedCell: (value: SetStateAction<CellWithId | null>) => void
 }
 
-export const PasteSourcesGrid: FC<PasteSourceGridProps> = memo(
+export const SourcesInputGrid: FC<PasteSourceGridProps> = memo(
   ({ gridRef, sources, columns, onChange, setSelectedCell }) => {
     const { height } = useWindowSize()
     return (

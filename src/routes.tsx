@@ -3,7 +3,7 @@ import { Associations } from 'components/Associations'
 import { ContentTabs } from 'components/ContentTabs/ContentTabs'
 import { Events } from 'components/Events'
 import { Login } from 'components/Login'
-import { PasteSources } from 'components/PasteSources'
+import { SourcesInput } from 'components/SourcesInput'
 import { ValidationProvider } from 'components/ValidationContext'
 import { createBrowserRouter } from 'react-router-dom'
 
@@ -24,7 +24,7 @@ export const routes = [
             path: 'sources',
             element: (
               <ValidationProvider>
-                <PasteSources tabIndex={0} />
+                <SourcesInput tabIndex={0} />
               </ValidationProvider>
             )
           },

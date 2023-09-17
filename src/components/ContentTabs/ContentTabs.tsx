@@ -21,16 +21,19 @@ export const ContentTabs = () => (
       <Tabs aria-label="basic tabs example">
         <TabList>
           <Tab component={RouterLink} to="sources" {...a11yProps(0)}>
-            Sources
+            Sources input
           </Tab>
-          <Tab component={RouterLink} to="events" {...a11yProps(1)}>
-            Events
+          <Tab component={RouterLink} to="sources" {...a11yProps(1)}>
+            Sources output
           </Tab>
-          <Tab component={RouterLink} to="sites" {...a11yProps(2)}>
-            Sites
+          <Tab component={RouterLink} to="events" {...a11yProps(2)}>
+            Events output
           </Tab>
-          <Tab component={RouterLink} to="associations" {...a11yProps(3)}>
-            Associations
+          <Tab component={RouterLink} to="sites" {...a11yProps(3)}>
+            Sites output
+          </Tab>
+          <Tab component={RouterLink} to="associations" {...a11yProps(4)}>
+            Associations output
           </Tab>
         </TabList>
       </Tabs>

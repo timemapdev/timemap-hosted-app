@@ -4,7 +4,7 @@ import { FC, useRef, useState, useMemo, useEffect } from 'react'
 import { textColumn, keyColumn, DataSheetGridRef } from 'react-datasheet-grid'
 import { ValidationSidebar } from 'components/ValidationSidebar'
 import { CellWithId, Column } from 'react-datasheet-grid/dist/types'
-import { PasteSourcesGrid } from 'components/PasteSources/PasteSourcesGrid'
+import { SourcesInputGrid } from 'components/SourcesInput/SourcesInputGrid'
 import { createValidatedColumn } from 'components/ValidatedCell'
 import { useValidation } from 'components/ValidationContext'
 import { ValidationNavButton } from 'components/ValidationSidebar/ValidationNavButton'
@@ -18,9 +18,9 @@ import {
 } from 'types'
 
 import { getStateChanges } from 'lib/changes'
-import { sourceValidationRules } from 'components/PasteSources/validation'
+import { sourceValidationRules } from 'components/SourcesInput/validation'
 
-type PasteSourcesProps = {
+type SourcesInputProps = {
   tabIndex: number
 }
 
@@ -40,7 +40,7 @@ const emptyRow = {
   meansOfAttack: []
 }
 
-export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
+export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
   const [validationSidebarOpen, setValidationSidebarOpen] = useState(false)
   const [sources, setSources] = useState<SourceType[]>([emptyRow])
   const previousSources = useRef<SourceType[]>(sources)
@@ -237,7 +237,7 @@ export const PasteSources: FC<PasteSourcesProps> = ({ tabIndex }) => {
       </Box>
 
       <Box width={validationSidebarOpen ? 'calc(100% - 360px)' : '100%'}>
-        <PasteSourcesGrid
+        <SourcesInputGrid
           gridRef={ref}
           sources={sources}
           columns={columns as Partial<Column<SourceType, any, any>>[]}
