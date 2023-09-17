@@ -1,29 +1,53 @@
 import { useWindowSize } from '@uidotdev/usehooks'
-import { FC, RefObject, SetStateAction, memo } from 'react'
+import { FC, RefObject, memo, useEffect } from 'react'
 import { Column, DataSheetGrid, DataSheetGridRef } from 'react-datasheet-grid'
-import { CellWithId, Operation } from 'react-datasheet-grid/dist/types'
 import { SourceType } from 'types'
+import { useValidation } from 'components/ValidationContext'
+import { useInputSources } from 'components/InputSourcesContext'
+import { getSkipRows, validateState } from 'lib/validation'
+import { sourceValidationRules } from 'components/SourcesInput/validation'
 
 type PasteSourceGridProps = {
   gridRef: RefObject<DataSheetGridRef>
-  sources: SourceType[]
   columns: Partial<Column<SourceType, any, any>>[]
-  onChange: (sources: SourceType[], operations: Operation[]) => void
-  setSelectedCell: (value: SetStateAction<CellWithId | null>) => void
 }
 
+export const validateSources = validateState(sourceValidationRules)
+
 export const SourcesInputGrid: FC<PasteSourceGridProps> = memo(
-  ({ gridRef, sources, columns, onChange, setSelectedCell }) => {
+  ({ gridRef, columns }) => {
+    const { dispatch: validationDispatch } = useValidation()
+    const { state: inputsState, dispatch: inputsDispatch } = useInputSources()
+
+    const { inputChanges, inputSources } = inputsState
+
+    useEffect(() => {
+      if (inputChanges) {
+        validationDispatch({
+          type: 'setSkipRowChanges',
+          payload: getSkipRows(inputChanges)
+        })
+
+        validationDispatch({
+          type: 'setValidationChanges',
+          payload: validateSources(inputChanges) ?? {}
+        })
+      }
+    }, [validationDispatch, inputChanges])
+
     const { height } = useWindowSize()
+
     return (
       <DataSheetGrid<SourceType>
         ref={gridRef}
-        value={sources}
+        value={inputSources}
         columns={columns}
         height={(height ?? 1000) - 156}
-        onChange={onChange}
+        onChange={change => {
+          inputsDispatch({ type: 'setInputSources', payload: change })
+        }}
         onActiveCellChange={({ cell }) => {
-          setSelectedCell(cell)
+          inputsDispatch({ type: 'setSelectedCell', payload: cell })
         }}
       />
     )

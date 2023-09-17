@@ -11,6 +11,7 @@ export type SourceTypeRaw = Omit<
     yearOfPost: string
     oblast: string
     town: string
+    fileNames: string
   },
   'oblastKey' | 'townKey' | 'id' | 'eventKey' | 'createdAt'
 >
@@ -42,3 +43,5 @@ export type ValidationRules<T> = {
 export type ValidationResults<T> = Record<string, ObjectValidationResult<T>>
 
 export type ObjectValidationResult<T> = Partial<Record<keyof T, string[]>>
+
+export type SourceSite = 'Telegram' | 'Tweet' | 'YouTube' | 'Manual'

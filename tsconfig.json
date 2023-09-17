@@ -27,7 +27,6 @@
       "values/*": ["./values/*"],
       "icons/*": ["./icons/*"],
     },
-    "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "declarationMap": true,
     "declaration": true
   },

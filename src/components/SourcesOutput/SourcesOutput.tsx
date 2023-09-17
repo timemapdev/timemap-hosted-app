@@ -3,7 +3,11 @@ import { FC } from 'react'
 import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
 import { Column } from 'react-datasheet-grid/dist/types'
 import Input from '@mui/joy/Input'
-import { SourceType } from 'types'
+import { useInputSources } from 'components/InputSourcesContext'
+import { useValidation } from 'components/ValidationContext'
+import { typeFromUrl } from 'lib/munging'
+import { SourceSite } from 'types'
+import { getGoogleDriveIds } from 'lib/munging/getGoogleDriveIds'
 
 type SourceOutputRow = {
   id: string
@@ -11,21 +15,53 @@ type SourceOutputRow = {
   thumbnail: string
   description: string
   type: string
-  paths: string[]
+  paths1: string
 }
 
 type SourcesOutputProps = {
   tabIndex: number
-  sourceOutputs: SourceOutputRow[]
 }
 
-export const SourcesOutput: FC<SourcesOutputProps> = ({
-  tabIndex,
-  sourceOutputs
-}) => {
-  const maxPaths = sourceOutputs.reduce((acc, { paths }) => {
-    return Math.max(acc, paths.length)
+export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
+  const { state: inputsState } = useInputSources()
+  const { inputSources } = inputsState
+
+  const { state: validationState } = useValidation()
+  const { validation, skipRows } = validationState
+
+  const maxPaths = inputSources.reduce((acc, { googleDriveLinks }) => {
+    return Math.max(acc, googleDriveLinks?.length ?? 0)
   }, 0)
+
+  const exportsSources: SourceOutputRow[] = inputSources
+    .filter((_, index) => {
+      if (skipRows[index]) {
+        return false
+      }
+
+      if (validation[index]) {
+        return false
+      }
+      debugger
+      // TODO need to make sure validation has happened
+      return true
+    })
+    .map(({ sourceUrl, comment, googleDriveLinks }) => {
+      const sourceSite = typeFromUrl(sourceUrl)
+
+      return {
+        id: sourceUrl,
+        title: '',
+        thumbnail: '',
+        description: comment,
+        type: sourceSite,
+        ...generatePaths({
+          sourceSite,
+          sourceUrl,
+          googleDriveLinks: googleDriveLinks
+        })
+      }
+    })
 
   const columns = [
     {
@@ -53,43 +89,7 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({
       title: 'Type',
       minWidth: 200
     },
-
-    {
-      ...keyColumn('manualLatLng', textColumn),
-      title: 'Coordinates',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('googleDriveLinks', textColumn),
-      title: 'Google Drive links',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('archiveLink', textColumn),
-      title: 'Source archive link',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('comment', textColumn),
-      title: 'Comment',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('typeOfIncident', textColumn),
-      title: 'Type of incident',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('meansOfAttack', textColumn),
-      title: 'Means of attack',
-      minWidth: 200
-    },
-    {
-      ...keyColumn('eventKey', textColumn),
-      title: 'Event key',
-      minWidth: 200
-    },
-    Array.from(new Array(maxPaths), (_, index) => ({
+    ...Array.from(new Array(maxPaths), (_, index) => ({
       ...keyColumn(`path${index + 1}`, textColumn),
       title: `path${index + 1}`,
       minWidth: 200
@@ -108,10 +108,35 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({
       </Box>
       <Box height="8px" />
       <DataSheetGrid<SourceOutputRow>
-        value={sourceOutputs}
+        value={exportsSources}
         columns={columns as Partial<Column<SourceOutputRow, any, any>>[]}
         height={500}
       />
     </Box>
   )
+}
+
+type GeneratePathsArgs = {
+  sourceSite: SourceSite
+  sourceUrl: string
+  googleDriveLinks: string[]
+}
+
+const generatePaths = ({
+  sourceSite,
+  sourceUrl,
+  googleDriveLinks
+}: GeneratePathsArgs) => {
+  if (sourceSite === 'Manual') {
+    getGoogleDriveIds(googleDriveLinks).reduce((acc, id, index) => {
+      return {
+        ...acc,
+        [`paths${index + 1}`]: id
+      }
+    }, {})
+  }
+
+  return {
+    paths1: sourceUrl
+  }
 }

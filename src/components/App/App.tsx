@@ -2,7 +2,9 @@ import Box from '@mui/joy/Box'
 import CssBaseline from '@mui/joy/CssBaseline'
 import { CssVarsProvider } from '@mui/joy/styles'
 import { FC } from 'react'
-import { Outlet } from 'react-router-dom'
+import 'react-datasheet-grid/dist/style.css'
+
+import { ContentTabs } from 'components/ContentTabs/ContentTabs'
 
 export const App: FC = () => (
   <CssVarsProvider>
@@ -32,7 +34,7 @@ export const App: FC = () => (
         }
       `}
       </style>
-      <Outlet />
+      <ContentTabs />
     </Box>
   </CssVarsProvider>
 )
