@@ -29,8 +29,6 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
   const { state: validationState } = useValidation()
   const { validation, skipRows } = validationState
 
-  console.log({ validationState, inputsState })
-
   const maxPaths = inputSources.reduce((acc, { googleDriveLinks }) => {
     return Math.max(acc, googleDriveLinks?.split(',')?.length ?? 0)
   }, 0)
@@ -45,7 +43,6 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
         return false
       }
 
-      // TODO need to make sure validation has happened
       return true
     })
     .map(({ sourceUrl, comment, googleDriveLinks }) => {
@@ -124,18 +121,22 @@ type GeneratePathsArgs = {
   googleDriveLinks: string[]
 }
 
+type PathObject = {
+  path1: string
+}
+
 const generatePaths = ({
   sourceSite,
   sourceUrl,
   googleDriveLinks
-}: GeneratePathsArgs) => {
+}: GeneratePathsArgs): PathObject => {
   if (sourceSite === 'Manual') {
-    const paths = getGoogleDriveIds(googleDriveLinks).reduce(
+    const paths = getGoogleDriveIds(googleDriveLinks).reduce<PathObject>(
       (acc, id, index) => ({
         ...acc,
         [`path${index + 1}`]: id
       }),
-      {}
+      {} as PathObject
     )
 
     return paths

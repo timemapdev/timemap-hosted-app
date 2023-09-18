@@ -1,4 +1,5 @@
 import { App } from 'components/App'
+import { EventsOutput } from 'components/EventsOutput'
 import { SourcesInput } from 'components/SourcesInput'
 import { SourcesOutput } from 'components/SourcesOutput'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
@@ -16,6 +17,10 @@ export const routes = [
       {
         path: 'exports/sources',
         element: <SourcesOutput tabIndex={1} />
+      },
+      {
+        path: 'exports/events',
+        element: <EventsOutput tabIndex={2} />
       }
     ]
   }

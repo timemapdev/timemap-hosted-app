@@ -8,13 +8,22 @@ export type Denull<T> = {
 
 export type SourceTypeRaw = Omit<
   Database['public']['Tables']['source']['Row'],
-  'oblastKey' | 'townKey' | 'id' | 'eventKey' | 'createdAt' | 'googleDriveLinks'
+  | 'oblastKey'
+  | 'townKey'
+  | 'id'
+  | 'eventKey'
+  | 'createdAt'
+  | 'googleDriveLinks'
+  | 'typeOfIncident'
+  | 'meansOfAttack'
 > & {
   yearOfPost: string
   oblast: string
   town: string
   fileNames: string
   googleDriveLinks: string
+  typeOfIncident: string
+  meansOfAttack: string
 }
 
 export type SourceType = Denull<SourceTypeRaw>
