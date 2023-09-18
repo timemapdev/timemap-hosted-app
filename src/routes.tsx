@@ -1,4 +1,5 @@
 import { App } from 'components/App'
+import { AssociationsOutput } from 'components/AssociationsOutput'
 import { EventsOutput } from 'components/EventsOutput'
 import { SourcesInput } from 'components/SourcesInput'
 import { SourcesOutput } from 'components/SourcesOutput'
@@ -21,6 +22,10 @@ export const routes = [
       {
         path: 'exports/events',
         element: <EventsOutput tabIndex={2} />
+      },
+      {
+        path: 'exports/associations',
+        element: <AssociationsOutput tabIndex={3} />
       }
     ]
   }
