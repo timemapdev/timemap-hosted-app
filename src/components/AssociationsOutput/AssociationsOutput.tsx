@@ -20,7 +20,7 @@ type AssociationsOutputProps = {
 
 type AssociationNode = {
   label: string
-  children: AssociationNode[]
+  children?: Record<string, AssociationNode>
 }
 
 const getNumbers = (str: string) => {
@@ -42,15 +42,51 @@ const removeTrailingDot = (str: string) => {
   return str
 }
 
-const populateNode = (
-  nodes: AssociationNode[],
-  numbers: string,
-  notNumbers
-) => {
-  const nodePathIndices = numbers.split('.').map(number => {
-    const index = Number(number) - 1
-    return index
-  })
+type PopulateNodeArgs = {
+  node: Record<string, AssociationNode>
+  numbers: string
+  notNumbers: string
+  top: 'Means of attack' | 'Type of incident'
+}
+
+const example = {
+  label: 'Means of attack',
+  children:{
+    '1': {
+      label: 'Undefined',
+    },
+    '2': {
+      label: 'Bomb',
+      children: {
+        '1': {
+          label: 'Car bomb',
+        },
+        '2': {
+          label: 'Other bomb'
+        }
+      }
+    }
+  }
+}
+
+const populateNode = ({ node, numbers, notNumbers, top }: PopulateNodeArgs) => {
+  const nodePathIndices = numbers
+    .split('.')
+    .map(number => Number(number) - 1)
+    .reduce<Record<string, AssociationNode>>((acc, pathIndex, index, arr) => {
+      if (index === 0 && !acc.label) {
+        acc.label = top
+      }
+
+      if (!acc[pathIndex]) {
+        acc.[pathIndex] = { label: '', children: {} }
+      }
+
+      if (index - 1 === arr.length) {
+      }
+
+      return acc
+    }, node)
   // TODO: continue here
 }
 
