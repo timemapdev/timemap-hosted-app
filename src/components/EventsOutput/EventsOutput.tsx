@@ -6,6 +6,7 @@ import Input from '@mui/joy/Input'
 import { useInputSources } from 'components/InputSourcesContext'
 import { useValidation } from 'components/ValidationContext'
 import { SourceType } from 'types'
+import { includeInOutput } from 'lib/munging'
 
 type EventOutputRow = {
   id: string
@@ -77,10 +78,7 @@ export const EventsOutput: FC<EventsOutputProps> = ({ tabIndex }) => {
           sources: []
         })
       } else {
-        if (
-          skipRows[index] === false &&
-          !Object.values(validation[index]).some(col => col !== undefined)
-        ) {
+        if (includeInOutput({ skipRows, validation, index })) {
           const lastEvent = acc[acc.length - 1]
           lastEvent.sources.push(item)
         }

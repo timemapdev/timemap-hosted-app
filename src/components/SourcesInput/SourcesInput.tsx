@@ -170,7 +170,7 @@ export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
         />
       </Box>
 
-      <Box width={validationSidebarOpen ? 'calc(100% - 360px)' : '100%'}>
+      <Box width={validationSidebarOpen ? 'calc(100% - 380px)' : '100%'}>
         <SourcesInputGrid
           gridRef={ref}
           columns={columns as Partial<Column<SourceType, any, any>>[]}
