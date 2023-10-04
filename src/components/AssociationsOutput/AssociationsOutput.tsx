@@ -132,15 +132,15 @@ const generateAssociationRows = ({
     {} as FiltersPaths
   )
 
-  const output: AssociationOutputRow = {
-    id: node.label,
-    title: '',
-    desc: node.label,
-    mode: 'FILTER',
-    ...associationPaths
+  if (parentPaths.length) {
+    outputs.push({
+      id: node.label,
+      title: '',
+      desc: node.label,
+      mode: 'FILTER',
+      ...associationPaths
+    })
   }
-
-  outputs.push(output)
 
   return Object.keys(children).reduce((acc, key) => {
     const childNode = children[key]
@@ -174,13 +174,21 @@ export const AssociationsOutput: FC<AssociationsOutputProps> = ({
 
   const maxMeansOfAttackDepth = getMaxNodeDepth(meansOfAttackNode)
   const maxTypeOfIncidentDepth = getMaxNodeDepth(typeOfIncidentNode)
-  const maxDepth = Math.max(maxMeansOfAttackDepth, maxTypeOfIncidentDepth)
+  const maxDepth = Math.max(maxMeansOfAttackDepth, maxTypeOfIncidentDepth) + 1
 
-  const exportAssociations = generateAssociationRows({
+  const typeOfIncidentExports = generateAssociationRows({
     node: typeOfIncidentNode,
     parentPaths: [],
     outputs: []
   })
+
+  const meansOfAttackExports = generateAssociationRows({
+    node: meansOfAttackNode,
+    parentPaths: [],
+    outputs: []
+  })
+
+  const exportAssociations = [...typeOfIncidentExports, ...meansOfAttackExports]
 
   const columns = [
     {
