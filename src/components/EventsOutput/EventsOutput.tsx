@@ -2,11 +2,12 @@ import Box from '@mui/joy/Box'
 import { FC } from 'react'
 import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
 import { Column } from 'react-datasheet-grid/dist/types'
-import Input from '@mui/joy/Input'
 import { useInputSources } from 'components/InputSourcesContext'
 import { useValidation } from 'components/ValidationContext'
 import { SourceType } from 'types'
-import { includeInOutput } from 'lib/munging'
+import { includeInOutput, toSpreadColumnDefinitions } from 'lib/munging'
+import { useWindowSize } from '@uidotdev/usehooks'
+import { EmptyTab } from 'components/EmptyTab'
 
 type EventOutputRow = {
   id: string
@@ -61,8 +62,6 @@ export const EventsOutput: FC<EventsOutputProps> = ({ tabIndex }) => {
           return acc
         }
 
-        console.log('manualLatLng', index, manualLatLng)
-
         const [latitude, longitude] = manualLatLng
           .split(',')
           .map(coord => coord.trim())
@@ -87,10 +86,6 @@ export const EventsOutput: FC<EventsOutputProps> = ({ tabIndex }) => {
     },
     []
   )
-
-  const maxSources = events.reduce((acc, { sources }) => {
-    return Math.max(acc, sources.length)
-  }, 0)
 
   const exportEvents: EventExportRow[] = events
     .filter(event => event.sources.length)
@@ -183,17 +178,14 @@ export const EventsOutput: FC<EventsOutputProps> = ({ tabIndex }) => {
       title: 'longitude',
       minWidth: 200
     },
-    ...Array.from(new Array(maxAssociations), (_, index) => ({
-      ...keyColumn(`association${index + 1}`, textColumn),
-      title: `association${index + 1}`,
-      minWidth: 200
-    })),
-    ...Array.from(new Array(maxSources), (_, index) => ({
-      ...keyColumn(`source${index + 1}`, textColumn),
-      title: `source${index + 1}`,
-      minWidth: 200
-    }))
+    ...toSpreadColumnDefinitions({ name: 'association', size: maxAssociations })
   ]
+
+  const { height } = useWindowSize()
+
+  if (!exportEvents.length) {
+    return <EmptyTab tabIndex={tabIndex} name="events" />
+  }
 
   return (
     <Box
@@ -202,14 +194,10 @@ export const EventsOutput: FC<EventsOutputProps> = ({ tabIndex }) => {
       aria-labelledby={`simple-tab-${tabIndex}`}
       width="100%"
     >
-      <Box>
-        <Input tabIndex={-1} value="25.02" />
-      </Box>
-      <Box height="8px" />
       <DataSheetGrid<EventExportRow>
         value={exportEvents}
         columns={columns as Partial<Column<EventExportRow, any, any>>[]}
-        height={500}
+        height={(height ?? 1000) - 100}
       />
     </Box>
   )
@@ -222,25 +210,3 @@ type SourceObject = {
 type AssociationObject = {
   association1: string
 }
-
-// type GenerateAssociationsArgs = {
-//   typeOfIncident: string
-//   meansOfAttack: string
-// }
-
-// const generateAssociations = ({
-//   typeOfIncident,
-//   meansOfAttack
-// }: GenerateAssociationsArgs) => {
-//   const associations = [
-//     ...typeOfIncident.split(',').map(type => type.trim()),
-//     ...meansOfAttack.split(',').map(type => type.trim())
-//   ]
-
-//   return associations.reduce((acc, association, index) => {
-//     return {
-//       ...acc,
-//       [`association${index + 1}`]: association
-//     }
-//   }, {} as AssociationObject)
-// }

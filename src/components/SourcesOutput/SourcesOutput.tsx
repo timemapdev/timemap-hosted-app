@@ -2,12 +2,13 @@ import Box from '@mui/joy/Box'
 import { FC } from 'react'
 import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
 import { Column } from 'react-datasheet-grid/dist/types'
-import Input from '@mui/joy/Input'
 import { useInputSources } from 'components/InputSourcesContext'
 import { useValidation } from 'components/ValidationContext'
-import { typeFromUrl } from 'lib/munging'
+import { toSpreadColumnValues, typeFromUrl } from 'lib/munging'
 import { SourceSite } from 'types'
-import { getGoogleDriveIds } from 'lib/munging/getGoogleDriveIds'
+import { toSpreadColumnDefinitions, getGoogleDriveIds } from 'lib/munging'
+import { useWindowSize } from '@uidotdev/usehooks'
+import { EmptyTab } from 'components/EmptyTab'
 
 type SourceOutputRow = {
   id: string
@@ -33,7 +34,7 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
     return Math.max(acc, googleDriveLinks?.split(',')?.length ?? 0)
   }, 0)
 
-  const exportsSources: SourceOutputRow[] = inputSources
+  const exportSources: SourceOutputRow[] = inputSources
     .filter((_, index) => {
       if (skipRows[index] !== false) {
         return false
@@ -88,12 +89,14 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
       title: 'Type',
       minWidth: 200
     },
-    ...Array.from(new Array(maxPaths), (_, index) => ({
-      ...keyColumn(`path${index + 1}`, textColumn),
-      title: `path${index + 1}`,
-      minWidth: 200
-    }))
+    ...toSpreadColumnDefinitions({ name: 'path', size: maxPaths })
   ]
+
+  const { height } = useWindowSize()
+
+  if (!exportSources.length) {
+    return <EmptyTab tabIndex={tabIndex} name="sources" />
+  }
 
   return (
     <Box
@@ -102,14 +105,10 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
       aria-labelledby={`simple-tab-${tabIndex}`}
       width="100%"
     >
-      <Box>
-        <Input tabIndex={-1} value="25.02" />
-      </Box>
-      <Box height="8px" />
       <DataSheetGrid<SourceOutputRow>
-        value={exportsSources}
+        value={exportSources}
         columns={columns as Partial<Column<SourceOutputRow, any, any>>[]}
-        height={500}
+        height={(height ?? 1000) - 100}
       />
     </Box>
   )
@@ -130,19 +129,11 @@ const generatePaths = ({
   sourceUrl,
   googleDriveLinks
 }: GeneratePathsArgs): PathObject => {
-  if (sourceSite === 'Manual') {
-    const paths = getGoogleDriveIds(googleDriveLinks).reduce<PathObject>(
-      (acc, id, index) => ({
-        ...acc,
-        [`path${index + 1}`]: id
-      }),
-      {} as PathObject
-    )
-
-    return paths
-  }
-
-  return {
-    path1: sourceUrl
-  }
+  return toSpreadColumnValues({
+    columnPrefix: 'path',
+    values:
+      sourceSite === 'Manual'
+        ? getGoogleDriveIds(googleDriveLinks)
+        : [sourceUrl]
+  })
 }

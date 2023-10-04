@@ -55,8 +55,8 @@ const emptySourceInput: SourceType = {
   fileNames: '',
   archiveLink: '',
   comment: '',
-  typeOfIncident: [],
-  meansOfAttack: []
+  typeOfIncident: '',
+  meansOfAttack: ''
 }
 
 const inputSourcesReducer = (state: State, action: Action) => {

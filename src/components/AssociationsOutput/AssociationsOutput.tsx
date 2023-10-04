@@ -1,18 +1,27 @@
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 import { useInputSources } from 'components/InputSourcesContext'
 import { useValidation } from 'components/ValidationContext'
-import { SourceType } from 'types'
-import { getNumbers, includeInOutput } from 'lib/munging'
+import {
+  getNumbers,
+  includeInOutput,
+  toSpreadColumnDefinitions
+} from 'lib/munging'
+import { textColumn, keyColumn, DataSheetGrid } from 'react-datasheet-grid'
+import Box from '@mui/joy/Box'
+import { useWindowSize } from '@uidotdev/usehooks'
+import { Column } from 'react-datasheet-grid/dist/types'
+import { SourceType, ValidationResults } from 'types'
+import { EmptyTab } from 'components/EmptyTab'
 
 type AssociationOutputRow = {
   id: string
-  description: string
-  date: string
-  time: string
-  location: string
-  latitude: string
-  longitude: string
-  sources: SourceType[]
+  title: string
+  desc: string
+  mode: 'FILTER'
+} & FiltersPaths
+
+type FiltersPaths = {
+  filter_path1: string
 }
 
 type AssociationsOutputProps = {
@@ -30,27 +39,16 @@ type PopulateNodeArgs = {
   notNumbers: string
 }
 
-export const example: AssociationNode = {
-  label: 'Means of attack',
-  children: {
-    '1': {
-      label: 'Undefined',
-      children: {}
-    },
-    '2': {
-      label: 'Bomb',
-      children: {
-        '1': {
-          label: 'Car bomb',
-          children: {}
-        },
-        '2': {
-          label: 'Other bomb',
-          children: {}
-        }
-      }
-    }
+const getMaxNodeDepth = (node: AssociationNode, depth = 0): number => {
+  if (Object.keys(node.children).length === 0) {
+    return depth
   }
+
+  return Math.max(
+    ...Object.values(node.children).map(child =>
+      getMaxNodeDepth(child, depth + 1)
+    )
+  )
 }
 
 const populateNode = ({ node, numbers, notNumbers }: PopulateNodeArgs) => {
@@ -69,15 +67,17 @@ const populateNode = ({ node, numbers, notNumbers }: PopulateNodeArgs) => {
   }, node)
 }
 
-export const AssociationsOutput: FC<AssociationsOutputProps> = ({
-  tabIndex
-}) => {
-  const { state: inputsState } = useInputSources()
-  const { inputSources } = inputsState
+type GenerateAssociationTreesArgs = {
+  inputSources: SourceType[]
+  validation: ValidationResults<Record<string, unknown>>
+  skipRows: Record<string, boolean>
+}
 
-  const { state: validationState } = useValidation()
-  const { validation, skipRows } = validationState
-
+const generateAssociationTrees = ({
+  inputSources,
+  validation,
+  skipRows
+}: GenerateAssociationTreesArgs) => {
   const meansOfAttackNode: AssociationNode = {
     label: 'Means of attack',
     children: {}
@@ -106,7 +106,124 @@ export const AssociationsOutput: FC<AssociationsOutputProps> = ({
     })
   })
 
-  console.log({ meansOfAttackNode, typeOfIncidentNode })
+  return { meansOfAttackNode, typeOfIncidentNode }
+}
 
-  return null
+type GenerateAssociationRowsArgs = {
+  node: AssociationNode
+  parentPaths: string[]
+  outputs: AssociationOutputRow[]
+}
+
+const generateAssociationRows = ({
+  node,
+  parentPaths,
+  outputs
+}: GenerateAssociationRowsArgs): AssociationOutputRow[] => {
+  const { label, children } = node
+
+  const associationPaths = [...parentPaths, label].reduce<FiltersPaths>(
+    (acc, path, index) => {
+      return {
+        ...acc,
+        [`filter_path${index + 1}`]: path
+      }
+    },
+    {} as FiltersPaths
+  )
+
+  const output: AssociationOutputRow = {
+    id: node.label,
+    title: '',
+    desc: node.label,
+    mode: 'FILTER',
+    ...associationPaths
+  }
+
+  outputs.push(output)
+
+  return Object.keys(children).reduce((acc, key) => {
+    const childNode = children[key]
+
+    return generateAssociationRows({
+      node: childNode,
+      parentPaths: [...parentPaths, label],
+      outputs: acc
+    })
+  }, outputs)
+}
+
+export const AssociationsOutput: FC<AssociationsOutputProps> = ({
+  tabIndex
+}) => {
+  const { state: inputsState } = useInputSources()
+  const { inputSources } = inputsState
+
+  const { state: validationState } = useValidation()
+  const { validation, skipRows } = validationState
+
+  const { meansOfAttackNode, typeOfIncidentNode } = useMemo(
+    () =>
+      generateAssociationTrees({
+        inputSources,
+        validation,
+        skipRows
+      }),
+    [inputSources, validation, skipRows]
+  )
+
+  const maxMeansOfAttackDepth = getMaxNodeDepth(meansOfAttackNode)
+  const maxTypeOfIncidentDepth = getMaxNodeDepth(typeOfIncidentNode)
+  const maxDepth = Math.max(maxMeansOfAttackDepth, maxTypeOfIncidentDepth)
+
+  const exportAssociations = generateAssociationRows({
+    node: typeOfIncidentNode,
+    parentPaths: [],
+    outputs: []
+  })
+
+  const columns = [
+    {
+      ...keyColumn('id', textColumn),
+      title: 'id',
+      minWidth: 200
+    },
+    {
+      ...keyColumn('title', textColumn),
+      title: 'title',
+      minWidth: 200
+    },
+    {
+      ...keyColumn('desc', textColumn),
+      title: 'desc',
+      minWidth: 200
+    },
+    {
+      ...keyColumn('mode', textColumn),
+      title: 'mode',
+      minWidth: 200
+    },
+    ...toSpreadColumnDefinitions({ name: 'filter_path', size: maxDepth })
+  ]
+
+  const { height } = useWindowSize()
+
+  if (!exportAssociations.length) {
+    return <EmptyTab tabIndex={tabIndex} name="associations" />
+  }
+
+  return (
+    <Box
+      role="tabpanel"
+      id={`simple-tabpanel-${tabIndex}`}
+      aria-labelledby={`simple-tab-${tabIndex}`}
+      width="100%"
+    >
+      <DataSheetGrid<AssociationOutputRow>
+        value={exportAssociations}
+        columns={columns as Partial<Column<AssociationOutputRow, any, any>>[]}
+        height={(height ?? 1000) - 100}
+      />
+    </Box>
+  )
 }

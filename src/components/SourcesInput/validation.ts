@@ -141,10 +141,7 @@ const typeOfIncident = (value: unknown) => {
   return value
     .split(',')
     .map(str => scrubAssociation(str.trim()))
-    .filter(str => {
-      console.log('str', str)
-      return !typeOfIncidentValues.includes(str)
-    })
+    .filter(str => !typeOfIncidentValues.includes(str))
     .map(
       str =>
         `"${str}" is not of the available values: ${typeOfIncidentValues.join(
@@ -161,10 +158,7 @@ const meansOfAttack = (value: unknown) => {
   return value
     .split(',')
     .map(str => scrubAssociation(str.trim()))
-    .filter(str => {
-      console.log('str', str)
-      return !meansOfAttackValues.includes(str)
-    })
+    .filter(str => !meansOfAttackValues.includes(str))
     .map(
       str =>
         `"${str}" is not of the available values: ${meansOfAttackValues.join(
