@@ -7,7 +7,8 @@ import { SourcesInputGrid } from 'components/SourcesInput/SourcesInputGrid'
 import { createValidatedColumn } from 'components/ValidatedCell'
 import { ValidationNavButton } from 'components/ValidationSidebar/ValidationNavButton'
 import { SourceType } from 'types'
-import { SelectedCellView } from 'components/SourcesInput/SelectedCellView'
+import { TopBar } from 'components/TopBar'
+import { UploadNavButton, UploadSidebar } from 'components/UploadSidebar'
 
 type SourcesInputProps = {
   tabIndex: number
@@ -15,6 +16,8 @@ type SourcesInputProps = {
 
 export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
   const [validationSidebarOpen, setValidationSidebarOpen] = useState(false)
+  const [uploadSidebarOpen, setUploadSidebarOpen] = useState(false)
+
   const ref = useRef<DataSheetGridRef>(null)
 
   const columns = useMemo(
@@ -155,22 +158,20 @@ export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
       aria-labelledby={`simple-tab-${tabIndex}`}
       width="100%"
     >
-      <Box
-        display="flex"
-        padding="8px"
-        position="sticky"
-        top="0"
-        zIndex="1"
-        borderBottom="1px solid #e8ebed"
-        sx={{ backgroundColor: '#F5F7FA' }}
-      >
-        <SelectedCellView />
+      <TopBar>
         <ValidationNavButton
           setValidationSidebarOpen={setValidationSidebarOpen}
         />
-      </Box>
+        <UploadNavButton setUploadSidebarOpen={setUploadSidebarOpen} />
+      </TopBar>
 
-      <Box width={validationSidebarOpen ? 'calc(100% - 380px)' : '100%'}>
+      <Box
+        width={
+          validationSidebarOpen || uploadSidebarOpen
+            ? 'calc(100% - 380px)'
+            : '100%'
+        }
+      >
         <SourcesInputGrid
           gridRef={ref}
           columns={columns as Partial<Column<SourceType, any, any>>[]}
@@ -181,6 +182,10 @@ export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
         open={validationSidebarOpen}
         setValidationSidebarOpen={setValidationSidebarOpen}
         gridRef={ref}
+      />
+      <UploadSidebar
+        open={uploadSidebarOpen}
+        setUploadSidebarOpen={setUploadSidebarOpen}
       />
     </Box>
   )

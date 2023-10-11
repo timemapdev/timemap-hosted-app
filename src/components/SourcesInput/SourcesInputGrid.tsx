@@ -6,6 +6,7 @@ import { useValidation } from 'components/ValidationContext'
 import { useInputSources } from 'components/InputSourcesContext'
 import { getSkipRows, validateState } from 'lib/validation'
 import { sourceValidationRules } from 'components/SourcesInput/validation'
+import { isEventStart } from 'lib/munging'
 
 type PasteSourceGridProps = {
   gridRef: RefObject<DataSheetGridRef>
@@ -43,6 +44,11 @@ export const SourcesInputGrid: FC<PasteSourceGridProps> = memo(
         value={inputSources}
         columns={columns}
         height={(height ?? 1000) - 156}
+        rowClassName={({ rowData }) => {
+          if (isEventStart(rowData)) {
+            return 'event-row'
+          }
+        }}
         onChange={change => {
           inputsDispatch({ type: 'setInputSources', payload: change })
         }}

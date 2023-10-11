@@ -5,7 +5,11 @@ import { Column } from 'react-datasheet-grid/dist/types'
 import { useInputSources } from 'components/InputSourcesContext'
 import { useValidation } from 'components/ValidationContext'
 import { SourceType } from 'types'
-import { includeInOutput, toSpreadColumnDefinitions } from 'lib/munging'
+import {
+  includeInOutput,
+  isEventStart,
+  toSpreadColumnDefinitions
+} from 'lib/munging'
 import { useWindowSize } from '@uidotdev/usehooks'
 import { EmptyTab } from 'components/EmptyTab'
 
@@ -33,17 +37,6 @@ type EventExportRow = {
 
 type EventsOutputProps = {
   tabIndex: number
-}
-
-const isEventStart = (item: unknown) => {
-  if (
-    item &&
-    typeof item === 'object' &&
-    'timestamp' in item &&
-    !item.timestamp
-  ) {
-    return true
-  }
 }
 
 export const EventsOutput: FC<EventsOutputProps> = ({ tabIndex }) => {

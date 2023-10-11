@@ -23,6 +23,9 @@ export const App: FC = () => (
           font-size: 14px;
           line-height: 16px;
         }
+        .event-row > .dsg-cell {
+          background-color: #f5f5f5;
+        }
         .dsg-cell-header {
           width: fit-content;
         }
