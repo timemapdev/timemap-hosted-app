@@ -4,11 +4,11 @@ import { DataSheetGrid, textColumn, keyColumn } from 'react-datasheet-grid'
 import { Column } from 'react-datasheet-grid/dist/types'
 import { useInputSources } from 'components/InputSourcesContext'
 import { useValidation } from 'components/ValidationContext'
-import { toSpreadColumnValues, typeFromUrl } from 'lib/munging'
-import { SourceSite } from 'types'
-import { toSpreadColumnDefinitions, getGoogleDriveIds } from 'lib/munging'
+import { toSpreadColumnDefinitions, toSpreadColumnValues } from 'lib/munging'
 import { useWindowSize } from '@uidotdev/usehooks'
 import { EmptyTab } from 'components/EmptyTab'
+import { toSourcesOutput } from 'models/toSourcesOutput'
+import { SourceOutput } from 'types'
 
 type SourceOutputRow = {
   id: string
@@ -34,34 +34,7 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
     return Math.max(acc, googleDriveLinks?.split(',')?.length ?? 0)
   }, 0)
 
-  const exportSources: SourceOutputRow[] = inputSources
-    .filter((_, index) => {
-      if (skipRows[index] !== false) {
-        return false
-      }
-
-      if (Object.values(validation[index]).some(col => col !== undefined)) {
-        return false
-      }
-
-      return true
-    })
-    .map(({ sourceUrl, comment, googleDriveLinks }) => {
-      const sourceSite = typeFromUrl(sourceUrl)
-
-      return {
-        id: sourceUrl,
-        title: '',
-        thumbnail: '',
-        description: comment,
-        type: sourceSite,
-        ...generatePaths({
-          sourceSite,
-          sourceUrl,
-          googleDriveLinks: googleDriveLinks.split(',').map(link => link.trim())
-        })
-      }
-    })
+  const sourcesOutput = toSourcesOutput({ inputSources, validation, skipRows })
 
   const columns = [
     {
@@ -94,7 +67,7 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
 
   const { height } = useWindowSize()
 
-  if (!exportSources.length) {
+  if (!sourcesOutput.length) {
     return <EmptyTab tabIndex={tabIndex} name="sources" />
   }
 
@@ -106,7 +79,7 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
       width="100%"
     >
       <DataSheetGrid<SourceOutputRow>
-        value={exportSources}
+        value={flattenSources(sourcesOutput)}
         columns={columns as Partial<Column<SourceOutputRow, any, any>>[]}
         height={(height ?? 1000) - 100}
       />
@@ -114,26 +87,9 @@ export const SourcesOutput: FC<SourcesOutputProps> = ({ tabIndex }) => {
   )
 }
 
-type GeneratePathsArgs = {
-  sourceSite: SourceSite
-  sourceUrl: string
-  googleDriveLinks: string[]
-}
-
-type PathObject = {
-  path1: string
-}
-
-const generatePaths = ({
-  sourceSite,
-  sourceUrl,
-  googleDriveLinks
-}: GeneratePathsArgs): PathObject => {
-  return toSpreadColumnValues({
-    columnPrefix: 'path',
-    values:
-      sourceSite === 'Manual'
-        ? getGoogleDriveIds(googleDriveLinks)
-        : [sourceUrl]
-  })
+const flattenSources = (sourcesOutput: SourceOutput[]): SourceOutputRow[] => {
+  return sourcesOutput.map(({ paths, ...source }) => ({
+    ...source,
+    ...toSpreadColumnValues({ columnPrefix: 'path', values: paths })
+  }))
 }

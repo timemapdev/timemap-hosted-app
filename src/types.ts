@@ -55,3 +55,68 @@ export type ValidationResults<T> = Record<string, ObjectValidationResult<T>>
 export type ObjectValidationResult<T> = Partial<Record<keyof T, string[]>>
 
 export type SourceSite = 'Telegram' | 'Tweet' | 'YouTube' | 'Manual'
+
+export type SourceOutputBase = {
+  id: string
+  title: string
+  thumbnail: string
+  description: string
+  type: string
+}
+
+export type SourceOutput = SourceOutputBase & {
+  paths: string[]
+}
+
+export type SourceOutputRow = SourceOutputBase & PathsObject
+
+type PathsObject = {
+  path1: string
+}
+
+export type AssociationNode = {
+  label: string
+  children: Record<string, AssociationNode>
+}
+
+export type AssociationOutputBase = {
+  id: string
+  title: string
+  desc: string
+  mode: 'FILTER'
+}
+
+export type AssociationOutput = AssociationOutputBase & {
+  filter_paths: string[]
+}
+
+export type AssociationOutputRow = AssociationOutputBase & FiltersPathsObject
+
+export type FiltersPathsObject = {
+  filter_path1: string
+}
+
+export type EventOutputBase = {
+  id: number
+  description: string
+  date: string
+  time: string
+  location: string
+  latitude: string
+  longitude: string
+}
+
+export type EventOutput = EventOutputBase & {
+  sources: string[]
+  associations: AssociationOutput[]
+}
+
+export type EventOutputRow = EventOutputBase & AssociationObject & SourceObject
+
+export type SourceObject = {
+  source1: string
+}
+
+export type AssociationObject = {
+  association1: string
+}
