@@ -9,6 +9,7 @@ import { ValidationNavButton } from 'components/ValidationSidebar/ValidationNavB
 import { SourceType } from 'types'
 import { TopBar } from 'components/TopBar'
 import { UploadNavButton, UploadSidebar } from 'components/UploadSidebar'
+import { SettingsNavButton, SettingsSidebar } from 'components/SettingsSidebar'
 
 type SourcesInputProps = {
   tabIndex: number
@@ -17,6 +18,7 @@ type SourcesInputProps = {
 export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
   const [validationSidebarOpen, setValidationSidebarOpen] = useState(false)
   const [uploadSidebarOpen, setUploadSidebarOpen] = useState(false)
+  const [settingsSidebarOpen, setSettingsSidebarOpen] = useState(false)
 
   const ref = useRef<DataSheetGridRef>(null)
 
@@ -163,6 +165,7 @@ export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
           setValidationSidebarOpen={setValidationSidebarOpen}
         />
         <UploadNavButton setUploadSidebarOpen={setUploadSidebarOpen} />
+        <SettingsNavButton setSettingsSidebarOpen={setSettingsSidebarOpen} />
       </TopBar>
 
       <Box
@@ -183,9 +186,15 @@ export const SourcesInput: FC<SourcesInputProps> = ({ tabIndex }) => {
         setValidationSidebarOpen={setValidationSidebarOpen}
         gridRef={ref}
       />
+
       <UploadSidebar
         open={uploadSidebarOpen}
         setUploadSidebarOpen={setUploadSidebarOpen}
+      />
+
+      <SettingsSidebar
+        open={settingsSidebarOpen}
+        setSettingsSidebarOpen={setSettingsSidebarOpen}
       />
     </Box>
   )

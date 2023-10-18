@@ -5,14 +5,16 @@ import { FC } from 'react'
 import 'react-datasheet-grid/dist/style.css'
 
 import { ContentTabs } from 'components/ContentTabs/ContentTabs'
+import { AuthProvider } from 'components/AuthContext/AuthContext'
 
 export const App: FC = () => (
   <CssVarsProvider>
-    <CssBaseline />
+    <AuthProvider>
+      <CssBaseline />
 
-    <Box display="flex">
-      <style>
-        {`
+      <Box display="flex">
+        <style>
+          {`
         body {
           margin: 0;
         }
@@ -36,8 +38,9 @@ export const App: FC = () => (
           line-height: 16px;
         }
       `}
-      </style>
-      <ContentTabs />
-    </Box>
+        </style>
+        <ContentTabs />
+      </Box>
+    </AuthProvider>
   </CssVarsProvider>
 )

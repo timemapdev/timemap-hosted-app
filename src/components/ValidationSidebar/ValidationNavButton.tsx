@@ -1,6 +1,5 @@
-import Link from '@mui/joy/Link'
 import Chip from '@mui/joy/Chip'
-import { Button } from '@mui/joy'
+import Button from '@mui/joy/Button'
 import Box from '@mui/joy/Box'
 import { Dispatch, FC, SetStateAction } from 'react'
 import { useValidation } from 'components/ValidationContext'
@@ -41,10 +40,8 @@ export const ValidationNavButton: FC<ValidationNavButtonProps> = ({
       justifyContent="flex-end"
       pr="8px"
     >
-      <Link
-        component={Button}
+      <Button
         onClick={() => setValidationSidebarOpen(value => !value)}
-        underline="none"
         variant="plain"
         size="sm"
         endDecorator={
@@ -63,8 +60,8 @@ export const ValidationNavButton: FC<ValidationNavButtonProps> = ({
           borderRadius: 'md'
         }}
       >
-        Errors
-      </Link>
+        Validate
+      </Button>
     </Box>
   )
 }

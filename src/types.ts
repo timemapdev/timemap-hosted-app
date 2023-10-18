@@ -120,3 +120,13 @@ export type SourceObject = {
 export type AssociationObject = {
   association1: string
 }
+
+export type LiveData = {
+  events: EventOutput[]
+  associations: AssociationOutput[]
+  sources: Record<string, SourceOutput>
+  sites: unknown[]
+  regions: unknown[]
+  shapes: unknown[]
+  notifications: unknown[]
+}

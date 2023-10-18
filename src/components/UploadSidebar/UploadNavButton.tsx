@@ -1,8 +1,10 @@
-import Link from '@mui/joy/Link'
-import { Button } from '@mui/joy'
+import Chip from '@mui/joy/Chip'
+import Button from '@mui/joy/Button'
 import Box from '@mui/joy/Box'
 import { Dispatch, FC, SetStateAction } from 'react'
-import { UploadIcon } from 'icons/UploadIcon'
+import { useValidation } from 'components/ValidationContext'
+import { useInputSources } from 'components/InputSourcesContext'
+import { toLiveData } from 'lib/munging'
 
 type UploadNavButtonProps = {
   setUploadSidebarOpen: Dispatch<SetStateAction<boolean>>
@@ -11,6 +13,19 @@ type UploadNavButtonProps = {
 export const UploadNavButton: FC<UploadNavButtonProps> = ({
   setUploadSidebarOpen
 }) => {
+  const { state: validationState } = useValidation()
+  const { validation, skipRows } = validationState
+
+  const { state: inputsState } = useInputSources()
+  const { inputSources } = inputsState
+
+  const liveData = toLiveData({ inputSources, validation, skipRows })
+
+  const { events, associations, sources } = liveData
+
+  const uploadCount =
+    Object.values(sources).length + events.length + associations.length
+
   return (
     <Box
       display="flex"
@@ -19,12 +34,15 @@ export const UploadNavButton: FC<UploadNavButtonProps> = ({
       pr="8px"
       pl="8px"
     >
-      <Link
-        component={Button}
+      <Button
         onClick={() => setUploadSidebarOpen(value => !value)}
-        underline="none"
         variant="plain"
         size="sm"
+        endDecorator={
+          <Chip color="success" variant="soft" size="sm">
+            {uploadCount}
+          </Chip>
+        }
         sx={{
           '--Link-gap': '0.5rem',
           pl: 1,
@@ -32,8 +50,8 @@ export const UploadNavButton: FC<UploadNavButtonProps> = ({
           borderRadius: 'md'
         }}
       >
-        <UploadIcon />
-      </Link>
+        Upload
+      </Button>
     </Box>
   )
 }

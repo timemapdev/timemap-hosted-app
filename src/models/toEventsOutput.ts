@@ -33,7 +33,8 @@ export const toEventsOutput = ({
   const events: EventWithSources[] = inputSources.reduce<EventWithSources[]>(
     (acc, item, index) => {
       if (isEventStart(item)) {
-        const { comment, dateOfPost, town, oblast, manualLatLng } = item
+        const { comment, dateOfPost, yearOfPost, town, oblast, manualLatLng } =
+          item
 
         if (!manualLatLng) {
           return acc
@@ -43,10 +44,18 @@ export const toEventsOutput = ({
           .split(',')
           .map(coord => coord.trim())
 
+        const dateChunks = dateOfPost.split('.')
+
+        if (dateChunks.length !== 2) {
+          return acc
+        }
+
+        const date = `${dateChunks[0]}/${dateChunks[1]}/${yearOfPost}`
+
         acc.push({
           id: `${index + 1}`,
-          description: comment,
-          date: dateOfPost,
+          description: 'temp',
+          date,
           time: '',
           location: `${town}, ${oblast}`,
           latitude,

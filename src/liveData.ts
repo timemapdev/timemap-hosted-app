@@ -1,14 +1,4 @@
-import { AssociationOutput, EventOutput, SourceOutput } from 'types'
-
-export type LiveData = {
-  events: EventOutput[]
-  associations: AssociationOutput[]
-  sources: Record<string, SourceOutput>
-  sites: unknown[]
-  regions: unknown[]
-  shapes: unknown[]
-  notifications: unknown[]
-}
+import { AssociationOutput, EventOutput, LiveData, SourceOutput } from 'types'
 
 const events: EventOutput[] = [
   {
