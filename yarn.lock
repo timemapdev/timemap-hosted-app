@@ -72,6 +72,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.21.0":
+  version: 7.23.2
+  resolution: "@babel/runtime@npm:7.23.2"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 6c4df4839ec75ca10175f636d6362f91df8a3137f86b38f6cd3a4c90668a0fe8e9281d320958f4fbd43b394988958585a17c3aab2a4ea6bf7316b22916a371fb
+  languageName: node
+  linkType: hard
+
 "@babel/types@npm:^7.22.15":
   version: 7.22.17
   resolution: "@babel/types@npm:7.22.17"
@@ -2317,6 +2326,15 @@ __metadata:
   version: 4.0.1
   resolution: "data-uri-to-buffer@npm:4.0.1"
   checksum: 0d0790b67ffec5302f204c2ccca4494f70b4e2d940fea3d36b09f0bb2b8539c2e86690429eb1f1dc4bcc9e4df0644193073e63d9ee48ac9fce79ec1506e4aa4c
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.30.0":
+  version: 2.30.0
+  resolution: "date-fns@npm:2.30.0"
+  dependencies:
+    "@babel/runtime": ^7.21.0
+  checksum: f7be01523282e9bb06c0cd2693d34f245247a29098527d4420628966a2d9aad154bd0e90a6b1cf66d37adcb769cd108cf8a7bd49d76db0fb119af5cdd13644f4
   languageName: node
   linkType: hard
 
@@ -6152,6 +6170,7 @@ __metadata:
     "@uidotdev/usehooks": ^2.2.0
     "@vitejs/plugin-react-swc": ^3.3.2
     classnames: ^2.3.2
+    date-fns: ^2.30.0
     eslint: ^8.45.0
     eslint-config-prettier: ^9.0.0
     eslint-plugin-prettier: ^5.0.0

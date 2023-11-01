@@ -13,6 +13,7 @@ export const includeInOutput = ({
 }: IncludeInOutputArgs) => {
   return (
     skipRows[index] === false &&
+    validation[index] &&
     !Object.values(validation[index]).some(col => col !== undefined)
   )
 }

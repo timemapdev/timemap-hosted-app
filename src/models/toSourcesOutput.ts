@@ -18,7 +18,13 @@ export const toSourcesOutput = ({
         return false
       }
 
-      if (Object.values(validation[index]).some(col => col !== undefined)) {
+      const validationItem = validation[index]
+
+      if (!validationItem) {
+        return false
+      }
+
+      if (Object.values(validationItem).some(col => col !== undefined)) {
         return false
       }
 

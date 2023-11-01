@@ -30,12 +30,24 @@ serve(async (req: Request) => {
         data: { user },
       } = await supabaseClient.auth.getUser()
 
+      const mapUserRes = await supabaseClient.from('map_user').select(`
+        id, 
+        user_id,
+        map_id
+      `).eq('user_id', user.id)
+
+      if(mapUserRes.error) {
+        throw mapUserRes.error
+      }
+
+      const mapIds = mapUserRes.data.map(mapUser => mapUser.map_id)
+
       // And we can run queries in the context of our authenticated user
       const { data, error } = await supabaseClient.from('map').select(`
         id, 
-        subdomain,
-        map_user (id)
-      `).eq('map_user.user_id', user.id)
+        subdomain
+      `).in('id', mapIds).limit(1)
+      .single()
 
       if (error) {
         throw error;
@@ -56,6 +68,23 @@ serve(async (req: Request) => {
       const {
         data: { user },
       } = await supabaseClient.auth.getUser()
+
+      const mapUserInitRes = await supabaseClient.from('map_user').select(`
+        id, 
+        user_id,
+        map_id
+      `).eq('user_id', user.id)
+
+      if(mapUserInitRes.error) {
+        throw mapUserInitRes.error
+      }
+
+      if(mapUserInitRes.data.length > 1) {
+        return new Response(JSON.stringify({ data: { message: "Subdomain already in use"}}), {
+          headers: {  ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        })
+      }
 
       // And we can run queries in the context of our authenticated user
       const mapRes = await supabaseClient.from('map').insert({ subdomain }).limit(1)
