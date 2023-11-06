@@ -36,13 +36,22 @@ const SettingsForm = () => {
   const [subdomain, setSubdomain] = useState('')
 
   client.functions
-    .invoke('map-client', { method: 'GET' })
+    .invoke<{
+      data: {
+        map: {
+          subdomain: string
+        }
+      }
+    }>('map-client', { method: 'GET' })
     .then(({ data, error }) => {
       if (error) {
         throw error
       }
+      console.log('DD', data)
 
-      console.log(data)
+      if (data) {
+        setSubdomain(data.data.map?.subdomain ?? '')
+      }
     })
     .catch(error => console.log(error))
 
