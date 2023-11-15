@@ -1,8 +1,9 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from './database.generated.ts'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'http://localhost:4001',
   'Access-Control-Allow-Methods': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
@@ -14,7 +15,7 @@ serve(async (req: Request) => {
 
   try {
     // Create a Supabase client with the Auth context of the logged in user.
-    const supabaseClient = createClient(
+    const supabaseClient = createClient<Database>(
       // Supabase API URL - env var exported by default.
       Deno.env.get('SUPABASE_URL') ?? '',
       // Supabase API ANON KEY - env var exported by default.
@@ -45,7 +46,11 @@ serve(async (req: Request) => {
       // And we can run queries in the context of our authenticated user
       const { data, error } = await supabaseClient.from('map').select(`
         id, 
-        subdomain
+        subdomain,
+        north,
+        east,
+        south,
+        west
       `).in('id', mapIds).limit(1)
       .single()
 
@@ -53,7 +58,7 @@ serve(async (req: Request) => {
         throw error;
       }
 
-      return new Response(JSON.stringify({ data }), {
+      return new Response(JSON.stringify({ map: data }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       })
@@ -62,12 +67,18 @@ serve(async (req: Request) => {
     if(req.method === 'POST') {
       const body = await req.json()
 
-      const { subdomain } = body
+      const { subdomain, bounds } = body
+      const { north, east, south, west } = bounds
 
       // Now we can get the session or user object
       const {
         data: { user },
+        error: userError
       } = await supabaseClient.auth.getUser()
+
+      if(!user) {
+        throw new Error("User not found")
+      }
 
       const mapUserInitRes = await supabaseClient.from('map_user').select(`
         id, 
@@ -87,7 +98,7 @@ serve(async (req: Request) => {
       }
 
       // And we can run queries in the context of our authenticated user
-      const mapRes = await supabaseClient.from('map').insert({ subdomain }).limit(1)
+      const mapRes = await supabaseClient.from('map').insert({ subdomain, north, east, south, west }).limit(1)
       .single()
       
       console.log("MAP RES", mapRes)
@@ -103,6 +114,39 @@ serve(async (req: Request) => {
 
       if (mapUserRes.error) {
         throw mapUserRes.error;
+      }
+
+      return new Response(JSON.stringify({ data: mapRes.data }), {
+        headers: {  ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      })
+    }
+
+    if(req.method === 'PUT') {
+      const body = await req.json()
+
+      const { id, subdomain, bounds } = body
+      const { north, east, south, west } = bounds
+
+      // Now we can get the session or user object
+      const {
+        data: { user },
+        error: userError
+      } = await supabaseClient.auth.getUser()
+
+      if(!user) {
+        throw new Error("User not found")
+      }
+
+      console.log("UPDATE", id, subdomain, bounds)
+
+      // And we can run queries in the context of our authenticated user
+      const mapRes = await supabaseClient.from('map').update({ subdomain, north, east, south, west }).eq('id', id).select().single()
+      
+      console.log("MAP RES PUT", mapRes)
+
+      if (mapRes.error) {
+        throw mapRes.error
       }
 
       return new Response(JSON.stringify({ data: mapRes.data }), {

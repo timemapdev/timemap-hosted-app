@@ -1,13 +1,13 @@
 import { Drawer } from 'components/Drawer'
-import { Dispatch, FC, SetStateAction, memo, useState } from 'react'
+import { Dispatch, FC, SetStateAction, memo, useEffect, useState } from 'react'
 import { useValidation } from 'components/ValidationContext'
 import { useInputSources } from 'components/InputSourcesContext'
 import { Box, Button, Typography } from '@mui/joy'
 import { UploadIcon } from 'icons/UploadIcon'
 import { toLiveData } from 'lib/munging'
-import Input from '@mui/material/Input'
-import { LiveData } from 'types'
-import { Login } from 'components/Login'
+import { Bounds, LiveData } from 'types'
+import { client } from 'lib/client'
+import Link from '@mui/material/Link'
 
 type UploadSidebarProps = {
   open: boolean
@@ -18,6 +18,12 @@ export const UploadSidebar: FC<UploadSidebarProps> = memo(
   ({ open, setUploadSidebarOpen }) => {
     const [uploading, setUploading] = useState(false)
     const [accountName, setAccountName] = useState('')
+    const [bounds, setBounds] = useState({
+      north: 90,
+      east: 180,
+      south: -90,
+      west: -180
+    })
     const { state: validationState } = useValidation()
     const { validation, skipRows } = validationState
 
@@ -31,6 +37,32 @@ export const UploadSidebar: FC<UploadSidebarProps> = memo(
     const uploadDisabled =
       !Object.values(sources).length && !events.length && !associations.length
 
+    useEffect(() => {
+      client.functions
+        .invoke<{
+          map: {
+            subdomain: string
+            north: number
+            east: number
+            south: number
+            west: number
+          }
+        }>('map-client', { method: 'GET' })
+        .then(({ data, error }) => {
+          if (error) {
+            throw error
+          }
+
+          if (data) {
+            const { north, east, south, west } = data.map
+
+            setAccountName(data.map.subdomain)
+            setBounds({ north, east, south, west })
+          }
+        })
+        .catch(error => console.log(error))
+    }, [])
+
     return (
       <Drawer
         position="right"
@@ -40,6 +72,8 @@ export const UploadSidebar: FC<UploadSidebarProps> = memo(
       >
         <Box display="flex" flexDirection="column">
           <Typography>Available to upload</Typography>
+
+          <Box height="8px" />
 
           <ItemRow count={Object.values(sources).length} label="Sources" />
           <ItemRow count={events.length} label="Events" />
@@ -51,14 +85,28 @@ export const UploadSidebar: FC<UploadSidebarProps> = memo(
             disabled={uploadDisabled || !accountName}
             loading={uploading}
             endDecorator={<UploadIcon />}
-            onClick={upload({ accountName, liveData, setUploading })}
+            onClick={upload({ accountName, liveData, setUploading, bounds })}
           >
             Upload
           </Button>
 
-          <Box height="16px" />
+          <Box height="8px" />
 
-          <Typography>Uploading will overwrite current map data</Typography>
+          <Typography fontSize="14px">
+            Uploading will overwrite current map data
+          </Typography>
+
+          <Box height="24px" />
+
+          <Typography fontSize="14px">
+            Preview{' '}
+            <Link
+              fontSize="14px"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://${accountName}.timemap.dev`}
+            >{`https://${accountName}.timemap.dev`}</Link>
+          </Typography>
         </Box>
       </Drawer>
     )
@@ -80,16 +128,20 @@ type UploadArgs = {
   accountName: string
   liveData: LiveData
   setUploading: Dispatch<SetStateAction<boolean>>
+  bounds: Bounds
 }
 
 const upload =
-  ({ accountName, liveData, setUploading }: UploadArgs) =>
+  ({ accountName, liveData, setUploading, bounds }: UploadArgs) =>
   () => {
     setUploading(true)
 
     fetch(`https://${accountName}.timemap.dev/api/content`, {
       method: 'POST',
-      body: JSON.stringify(liveData),
+      body: JSON.stringify({
+        ...liveData,
+        bounds
+      }),
       headers: {
         'Content-Type': 'application/json'
       }

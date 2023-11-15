@@ -130,3 +130,10 @@ export type LiveData = {
   shapes: unknown[]
   notifications: unknown[]
 }
+
+export type Bounds = {
+  north: number
+  east: number
+  south: number
+  west: number
+}
